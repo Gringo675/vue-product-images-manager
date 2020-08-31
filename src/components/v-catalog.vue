@@ -1,11 +1,13 @@
 <template>
     <div class="v-catalog">
         <h1>Каталог</h1>
+        <div>checkedImgs: {{checkedImgs}}</div>
         <vCatalogItem
                 v-for="product in PRODUCTS"
                 :key="product.name"
                 :product_data="product"
-                @sendProductName="showNameInConsole"
+                @productChanged="productChanged"
+                @checkedImgsChanged="checkedImgsChanged"
         />
     </div>
 </template>
@@ -21,20 +23,8 @@
         },
         data() {
             return {
-                // products: [
-                //     {
-                //         name: "ProductName1",
-                //         image: "image1"
-                //     },
-                //     {
-                //         name: "ProductName2",
-                //         image: "image3"
-                //     },
-                //     {
-                //         name: "ProductName3",
-                //         image: "image3"
-                //     }
-                // ]
+                checkedImgs: [],
+                arrtest: []
             }
         },
         computed: {
@@ -44,27 +34,30 @@
         },
         methods: {
             ...mapActions([
-                'GET_PRODUCTS_FROM_API'
+                'GET_PRODUCTS_FROM_API',
+                'SET_PRODUCT_TO_CHANGED'
             ]),
-            showNameInConsole(data) {
-                console.log(data)
+            productChanged(product) {
+                this.SET_PRODUCT_TO_CHANGED(product);
+            },
+            checkedImgsChanged(itemSelectedImages) {
+
+                let isItemExist = false;
+                    this.checkedImgs.forEach(function (item, i, arr) {
+                        if (item.ean === itemSelectedImages.ean) {
+                            isItemExist = true;
+                            arr[i].images = itemSelectedImages.images;
+                        }
+                    });
+                    if (!isItemExist) {
+                        this.checkedImgs.push(itemSelectedImages);
+                    }
             }
         },
         mounted() {
-            // this.GET_PRODUCTS_FROM_API()
-            //     .then((response) => {
-            //     if (response.data) {
-            //         console.log('Data arrived')
-            //     } else {
-            //         console.log('Data delivery error')
-            //     }
-            // })
+
         },
-        watch: {
-            // PRODUCTS() {
-            //     console.log('product_data changed!');
-            // }
-        },
+        watch: {},
     }
 </script>
 

@@ -7,7 +7,8 @@ Vue.use(Vuex);
 let store = new Vuex.Store({
     state: {
         products: [],
-        cats: []
+        cats: [],
+        changedProducts: []
     },
     mutations: {
         SET_PRODUCTS_TO_STATE: (state, products) => {
@@ -15,6 +16,17 @@ let store = new Vuex.Store({
         },
         SET_CATS_TO_STATE: (state, cats) => {
             state.cats = cats;
+        },
+        SET_CHANGEDPRODUCT_TO_STATE: (state, product) => {
+            let isProductExist = false;
+            state.changedProducts.forEach(function (item) {
+                if (item.ean === product.ean) {
+                    isProductExist = true;
+                }
+            });
+            if (!isProductExist) {
+                state.changedProducts.push(product);
+            }
         }
     },
     actions: {
@@ -48,7 +60,10 @@ let store = new Vuex.Store({
                     console.log(error);
                     return error;
                 })
-        }
+        },
+        SET_PRODUCT_TO_CHANGED({commit}, product) {
+            commit('SET_CHANGEDPRODUCT_TO_STATE', product);
+        },
     },
     getters: {
         PRODUCTS(state) {
