@@ -29,20 +29,20 @@
         },
         data() {
             return {
-                itemCheckedImgs: [],
+                // itemCheckedImgs: [],
             }
         },
         watch: {
-            itemCheckedImgs(imagesID) {
-
-                console.log(imagesID)
+            // itemCheckedImgs(imagesID) {
+            //
+            //     console.log(imagesID)
 
                 // let itemSelectedImages = {
                 //     ean: this.product_data.ean,
                 //     images: imagesID
                 // };
                 // this.$emit('checkedImgsChanged', itemSelectedImages);
-            }
+            // }
         },
     }
 </script>

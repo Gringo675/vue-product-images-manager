@@ -1,14 +1,25 @@
 <template>
     <div class="v-catalog">
         <h1>Каталог</h1>
-        <div>checkedImgs: {{checkedImgs}}</div>
         <vCatalogItem
                 v-for="product in PRODUCTS"
-                :key="product.name"
+                :key="product.ean"
                 :product_data="product"
-                @productChanged="productChanged"
-                @checkedImgsChanged="checkedImgsChanged"
         />
+        <div class="buttons-block">
+            <button
+                    @click="resetSelectedImages">
+                Сбросить
+            </button>
+            <button
+                    @click="deleteSelectedImages">
+                Удалить
+            </button>
+            <button
+                    @click="selectSameImages">
+                Аналоги
+            </button>
+        </div>
     </div>
 </template>
 
@@ -22,10 +33,7 @@
             vCatalogItem
         },
         data() {
-            return {
-                checkedImgs: [],
-                arrtest: []
-            }
+            return {}
         },
         computed: {
             ...mapGetters([
@@ -34,25 +42,19 @@
         },
         methods: {
             ...mapActions([
-                'GET_PRODUCTS_FROM_API',
-                'SET_PRODUCT_TO_CHANGED'
+                'RESET_SELECTED_IMAGES',
+                'DELETE_SELECTED_IMAGES',
+                'SELECT_SAME_IMAGES'
             ]),
-            productChanged(product) {
-                this.SET_PRODUCT_TO_CHANGED(product);
+            resetSelectedImages() {
+                this.RESET_SELECTED_IMAGES();
             },
-            checkedImgsChanged(itemSelectedImages) {
-
-                let isItemExist = false;
-                    this.checkedImgs.forEach(function (item, i, arr) {
-                        if (item.ean === itemSelectedImages.ean) {
-                            isItemExist = true;
-                            arr[i].images = itemSelectedImages.images;
-                        }
-                    });
-                    if (!isItemExist) {
-                        this.checkedImgs.push(itemSelectedImages);
-                    }
-            }
+            deleteSelectedImages() {
+                this.DELETE_SELECTED_IMAGES();
+            },
+            selectSameImages() {
+                this.SELECT_SAME_IMAGES();
+            },
         },
         mounted() {
 
@@ -61,6 +63,14 @@
     }
 </script>
 
-<style scoped>
+<style>
+    .buttons-block {
+        position: fixed;
+        top: 40px;
+        left: 40px;
+    }
 
+    .buttons-block button {
+        margin: 10px;
+    }
 </style>

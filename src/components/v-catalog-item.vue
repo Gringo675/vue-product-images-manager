@@ -16,20 +16,29 @@
                 <input type="checkbox"
                        :id='image.id'
                        :value='image.id'
-                       v-model="itemCheckedImgs">
+                       v-model="product_data.itemCheckedImgs">
 
                 <button
-                        @click="deleteImage(index)"
+                        v-if="index !== 0"
+                        @click="moveLeft(index)"
                 >
-                    del
+                    &#8592;
+                </button>
+                <button
+                        v-if="index !== product_data.images.length-1"
+                        @click="moveRight(index)"
+                >
+                    &#8594;
                 </button>
             </div>
         </div>
-        <div class="checkedImgs clearfix">checkedImgs: {{ itemCheckedImgs }}</div>
+        <div class="checkedImgs clearfix">checkedImgs: {{ product_data.itemCheckedImgs }}</div>
     </div>
 </template>
 
 <script>
+    import {mapActions} from 'vuex'
+
     export default {
         name: "v-catalog-item",
         props: {
@@ -42,24 +51,41 @@
         },
         data() {
             return {
-                itemCheckedImgs: [],
+
             }
         },
         methods: {
-            deleteImage(index) {
-                // console.log(index);
-                this.product_data.images.splice(index, 1);
-                this.$emit('productChanged', this.product_data);
-            }
+            ...mapActions([
+                'SET_SELECTED_IMAGES_TO_PRODUCTS',
+                'MOVE_IMAGE_IN_PRODUCT'
+            ]),
+            moveLeft(index) {
+                 let product = {
+                    'index': this.product_data.index,
+                    'imageIndex': index,
+                    'direction': 'left'
+                };
+                this.MOVE_IMAGE_IN_PRODUCT(product);
+            },
+            moveRight(index) {
+                let product = {
+                    'index': this.product_data.index,
+                    'imageIndex': index,
+                    'direction': 'right'
+                };
+                this.MOVE_IMAGE_IN_PRODUCT(product);
+            },
         },
         watch: {
-            itemCheckedImgs(imagesID) {
-                let itemSelectedImages = {
-                    ean: this.product_data.ean,
-                    images: imagesID
+            'product_data.itemCheckedImgs'(checkedID) {
+                // console.log('product_data: ', this.product_data);
+                let product = {
+                    'index': this.product_data.index,
+                    'checkedID': checkedID
                 };
-                this.$emit('checkedImgsChanged', itemSelectedImages);
-            }
+                this.SET_SELECTED_IMAGES_TO_PRODUCTS(product);
+                      // console.log(checkedID);
+            },
         },
     }
 </script>
