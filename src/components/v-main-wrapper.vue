@@ -3,6 +3,7 @@
         <p>{{title}}</p>
         <vCats />
         <vCatalog />
+        <vImagebox />
         <tParent />
 
     </div>
@@ -10,7 +11,8 @@
 
 <script>
     import vCatalog from './v-catalog'
-    import vCats from'./v-cats'
+    import vCats from './v-cats'
+    import vImagebox from './v-imagebox'
     import tParent from'./test/t-parent'
 
     export default {
@@ -18,6 +20,7 @@
         components: {
             vCatalog,
             vCats,
+            vImagebox,
             tParent
         },
         props: {},

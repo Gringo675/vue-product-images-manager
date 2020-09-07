@@ -8,7 +8,7 @@
         />
         <div class="buttons-block">
             <button
-                    @click="resetSelectedImages">
+                    @click="resetSelectedProductsAndImages">
                 Сбросить
             </button>
             <button
@@ -18,6 +18,10 @@
             <button
                     @click="selectSameImages">
                 Аналоги
+            </button>
+            <button
+                    @click="toImagebox">
+                В выбранные
             </button>
         </div>
     </div>
@@ -42,12 +46,13 @@
         },
         methods: {
             ...mapActions([
-                'RESET_SELECTED_IMAGES',
+                'RESET_SELECTED_PRODUCTS_AND_IMAGES',
                 'DELETE_SELECTED_IMAGES',
-                'SELECT_SAME_IMAGES'
+                'SELECT_SAME_IMAGES',
+                'SET_IMAGES_TO_IMAGEBOX'
             ]),
-            resetSelectedImages() {
-                this.RESET_SELECTED_IMAGES();
+            resetSelectedProductsAndImages() {
+                this.RESET_SELECTED_PRODUCTS_AND_IMAGES();
             },
             deleteSelectedImages() {
                 this.DELETE_SELECTED_IMAGES();
@@ -55,6 +60,9 @@
             selectSameImages() {
                 this.SELECT_SAME_IMAGES();
             },
+            toImagebox() {
+                this.SET_IMAGES_TO_IMAGEBOX();
+            }
         },
         mounted() {
 
@@ -68,6 +76,7 @@
         position: fixed;
         top: 40px;
         left: 40px;
+        width: 200px;
     }
 
     .buttons-block button {

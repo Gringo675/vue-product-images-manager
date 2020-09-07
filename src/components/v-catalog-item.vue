@@ -1,10 +1,20 @@
 <template>
     <div class="v-catalog-item clearfix">
         <div class="product clearfix">
-            <div class="product-name">{{product_data.name}}</div>
+            <div class="product-name">
+                <label
+                        :for='product_data.ean'>
+                    {{product_data.name}}
+                </label>
+                <input type="checkbox"
+                       :id='product_data.ean'
+                       :value='product_data.ean'
+                       v-model="product_data.checked">
+
+            </div>
             <div class="product-image"
                  v-for="(image, index) in product_data.images"
-                 :key="image.id"
+                 :key="image.file"
             >
                 <label
                         :for='image.id'>
@@ -57,7 +67,8 @@
         methods: {
             ...mapActions([
                 'SET_SELECTED_IMAGES_TO_PRODUCTS',
-                'MOVE_IMAGE_IN_PRODUCT'
+                'MOVE_IMAGE_IN_PRODUCT',
+                'SET_PRODUCT_CHECKED_VALUE'
             ]),
             moveLeft(index) {
                  let product = {
@@ -85,6 +96,15 @@
                 };
                 this.SET_SELECTED_IMAGES_TO_PRODUCTS(product);
                       // console.log(checkedID);
+            },
+            'product_data.checked'(value) {
+                // console.log('product_data: ', this.product_data);
+                let product = {
+                    'index': this.product_data.index,
+                    'checked': value
+                };
+                this.SET_PRODUCT_CHECKED_VALUE(product);
+                // console.log(product);
             },
         },
     }
