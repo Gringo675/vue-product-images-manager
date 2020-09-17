@@ -17,15 +17,15 @@
                  :key="image.file"
             >
                 <label
-                        :for='image.id'>
+                        :for='product_data.ean + "_" + image.file'>
                     <img
                             :src='"https://test.chelinstrument.ru/components/com_jshopping/files/img_products/" + image.file'
                             :alt='image.name'
                     >
                 </label>
                 <input type="checkbox"
-                       :id='image.id'
-                       :value='image.id'
+                       :id='product_data.ean + "_" + image.file'
+                       :value='image.file'
                        v-model="product_data.itemCheckedImgs">
 
                 <button
@@ -88,11 +88,11 @@
             },
         },
         watch: {
-            'product_data.itemCheckedImgs'(checkedID) {
+            'product_data.itemCheckedImgs'(checked) {
                 // console.log('product_data: ', this.product_data);
                 let product = {
                     'index': this.product_data.index,
-                    'checkedID': checkedID
+                    'checkedImages': checked
                 };
                 this.SET_SELECTED_IMAGES_TO_PRODUCTS(product);
                       // console.log(checkedID);

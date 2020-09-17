@@ -1,14 +1,14 @@
 <template>
     <div class="v-cats">
         <p>Здесь будут категории</p>
-<!--        <vCatsItem-->
-<!--                v-for="cat in CATS"-->
-<!--                :key="cat.ean"-->
-<!--                :cat_data="cat"-->
-<!--        />-->
+        <!--        <vCatsItem-->
+        <!--                v-for="cat in CATS"-->
+        <!--                :key="cat.ean"-->
+        <!--                :cat_data="cat"-->
+        <!--        />-->
         <div class="test">
 
-            <select v-model="selected">
+            <select v-model="selected" @change="catChanged">
                 <option disabled value="">Выберите один из вариантов</option>
                 <option
                         v-for="cat in CATS"
@@ -34,6 +34,7 @@
         data() {
             return {
                 selected: '',
+                previosSelected: ''
             }
         },
         components: {
@@ -41,33 +42,46 @@
         },
         computed: {
             ...mapGetters([
-                'CATS'
+                'CATS',
+                'PRODUCTS',
+                'HAS_CHANGED_PRODUCTS'
             ]),
-            // selectedToConsole() {
-            //     console.log(this.selected);
-            //     return this.selected;
-            // }
         },
         watch: {
-            selected(ean) {
-                this.GET_PRODUCTS_FROM_API(ean);
-            }
+            // selected(ean, previosEan) {
+            //     console.log('ean: ', ean);
+            //     console.log('previosEan: ', previosEan);
+            //     let hasChanged = this.PRODUCTS.some(value => value.changed === true);
+            //     if (hasChanged) {
+            //         let isProceed = confirm('На странице есть измененные элементы. Если Вы продолжите, они будут сброшены. Продолжить?');
+            //         if (!isProceed) {
+            //             this.selected = previosEan;
+            //             return
+            //         }
+            //     }
+            //     this.GET_PRODUCTS_FROM_API(ean);
+            // }
         },
         methods: {
             ...mapActions([
                 'GET_CATS_FROM_API',
                 'GET_PRODUCTS_FROM_API'
-            ])
+            ]),
+            catChanged() {
+                   if (this.HAS_CHANGED_PRODUCTS) {
+                    let isProceed = confirm('На странице есть измененные элементы. Если Вы продолжите, они не будут сохранены. Продолжить?');
+                    if (!isProceed) {
+                        this.selected = this.previosSelected;
+                        return
+                    }
+                }
+                this.previosSelected = this.selected;
+                this.GET_PRODUCTS_FROM_API(this.selected);
+                // console.log('e: ', e);
+            }
         },
         mounted() {
             this.GET_CATS_FROM_API()
-                .then((response) => {
-                    if (response.data) {
-                        console.log('Data arrived')
-                    } else {
-                        console.log('Data delivery error')
-                    }
-                })
         }
     }
 </script>

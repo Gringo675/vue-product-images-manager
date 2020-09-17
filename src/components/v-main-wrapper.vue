@@ -1,10 +1,11 @@
 <template>
     <div class="v-main-wrapper">
         <p>{{title}}</p>
-        <vCats />
-        <vCatalog />
-        <vImagebox />
-        <tParent />
+        <vCats/>
+        <vCatalog/>
+        <vImagebox/>
+        <vServerImages/>
+        <tParent/>
 
     </div>
 </template>
@@ -13,7 +14,8 @@
     import vCatalog from './v-catalog'
     import vCats from './v-cats'
     import vImagebox from './v-imagebox'
-    import tParent from'./test/t-parent'
+    import vServerImages from './v-server-images'
+    import tParent from './test/t-parent'
 
     export default {
         name: 'v-main-wrapper',
@@ -21,6 +23,7 @@
             vCatalog,
             vCats,
             vImagebox,
+            vServerImages,
             tParent
         },
         props: {},
@@ -29,11 +32,11 @@
                 title: 'Main wrapper'
             }
         },
-        computed: {},
+        computed: {
+        },
         methods: {},
         watch: {},
         mounted() {
-            console.log('v-main-wrapper is ready!')
         }
     }
 </script>

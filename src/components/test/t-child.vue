@@ -47,6 +47,12 @@
     }
 </script>
 
-<style scoped>
-
+<style lang="scss">
+.t-child {
+    color: aquamarine;
+    .item-image {
+        color: red;
+        font-size: 40px;
+    }
+}
 </style>

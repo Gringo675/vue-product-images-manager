@@ -6,17 +6,26 @@ Vue.use(Vuex);
 
 let store = new Vuex.Store({
     state: {
+        token: localStorage.getItem('token') || null,
+        loginMessage: 'Введите учетные данные.',
         products: [],
+        productsBrands: [],
         cats: [],
         imagebox: [],
+        showLoader: false,
+        serverImages: []
     },
     mutations: {
         SET_PRODUCTS_TO_STATE: (state, products) => {
-            products.forEach(function (product, i, products) {
-                products[i].index = i;
-                products[i].itemCheckedImgs = [];
-                products[i].checked = false;
-                products[i].changed = false;
+            state.productsBrands = []; // формируем для фильтра
+            products.forEach(function (product, i) {
+                product.index = i;
+                product.itemCheckedImgs = [];
+                product.checked = false;
+                product.changed = false;
+                product.show = true;
+                (!state.productsBrands.some((value) => value === product.brand) ?
+                    state.productsBrands.push(product.brand) : 0);
             });
             state.products = products;
         },
@@ -24,7 +33,7 @@ let store = new Vuex.Store({
             state.cats = cats;
         },
         SET_SELECTED_IMAGES_TO_STATE: (state, product) => {
-            state.products[product.index].itemCheckedImgs = product.checkedID;
+            state.products[product.index].itemCheckedImgs = product.checkedImages;
         },
         RESET_SELECTED_PRODUCTS_AND_IMAGES_IN_STATE: (state) => {
             state.products.forEach(function (item, i, products) {
@@ -35,9 +44,9 @@ let store = new Vuex.Store({
         DELETE_SELECTED_IMAGES_IN_STATE: (state) => {
             state.products.forEach(function (item, i, products) {
                 if (products[i].itemCheckedImgs.length) {
-                    for (let imgID of item.itemCheckedImgs) {
+                    for (let imgFile of item.itemCheckedImgs) {
                         // console.log(imgID);
-                        let imgIndex = item.images.findIndex(value => value.id === imgID);
+                        let imgIndex = item.images.findIndex(value => value.file === imgFile);
                         // console.log(imgIndex);
                         products[i].images.splice(imgIndex, 1);
                     }
@@ -48,15 +57,11 @@ let store = new Vuex.Store({
         },
         SELECT_SAME_IMAGES_IN_STATE: (state) => {
             let fileNames = []; // массив со всеми именами файлов выделенных imgs
-            state.products.forEach(function (item, i, products) {
+            state.products.forEach(function (item) {
                 if (item.itemCheckedImgs.length) {
-                    for (let imgID of item.itemCheckedImgs) {
-                        // console.log(imgID);
-                        let imgIndex = item.images.findIndex(value => value.id === imgID);
-                        // console.log(imgIndex);
-                        let fileName = products[i].images[imgIndex].file;
-                        let nameIndex = fileNames.findIndex(value => value === fileName);
-                        if (nameIndex === -1) { // нет в массиве
+                    for (let fileName of item.itemCheckedImgs) {
+                        let isImageExist = fileNames.some(value => value === fileName);
+                        if (!isImageExist) { // нет в массиве
                             fileNames.push(fileName);
                         }
                     }
@@ -64,18 +69,16 @@ let store = new Vuex.Store({
             });
             // console.log(fileNames);
             if (fileNames.length) {
-                state.products.forEach(function (item, i, products) {
+                state.products.forEach((item) => {
                     for (let imgName of fileNames) {
-                        let imgIndex = item.images.findIndex(value => value.file === imgName);
-                        if (imgIndex >= 0) {
-                            let imgID = item.images[imgIndex].id;
-                            let checkedIndex = item.itemCheckedImgs.findIndex(value => value === imgID);
-                            if (checkedIndex === -1) {
-                                products[i].itemCheckedImgs.push(imgID);
+                        let isItemHasThisImage = item.images.some(value => value.file === imgName);
+                        if (isItemHasThisImage) {
+                            let isImageAlreadyChecked = item.itemCheckedImgs.some(value => value === imgName);
+                            if (!isImageAlreadyChecked) {
+                                item.itemCheckedImgs.push(imgName);
                             }
                         }
                     }
-
                 });
             }
         },
@@ -92,19 +95,12 @@ let store = new Vuex.Store({
                 if (item.itemCheckedImgs.length) {
                     item.itemCheckedImgs.forEach(function (checkedImg) {
                         // console.log('checkedImg ', checkedImg);
-                        let image = item.images.filter(function (img) {
-                            // console.log('img.id ', img.id);
-                            return img.id === checkedImg;
-                        })[0];
-                        let isImageExist = state.imagebox.some(function (img) {
-                            return img.file === image.file;
-                        });
+                        let image = item.images.filter((img) => img.file === checkedImg)[0];
+                        let isImageExist = state.imagebox.some((img) => img.file === image.file);
                         (!isImageExist ? state.imagebox.push(image) : 0);
                         // console.log('image ', image);
                     });
-
                 }
-
             });
             // console.log('state.imagebox ', state.imagebox);
         },
@@ -122,11 +118,112 @@ let store = new Vuex.Store({
         SET_PRODUCT_CHECKED_VALUE_TO_STATE: (state, product) => {
             state.products[product.index].checked = product.checked;
         },
+        ADD_IMAGEBOX_TO_CHECKED_PRODUCTS_IN_STATE: (state) => {
+            let checkedProducts = state.products.filter(value => value.checked === true);
+            // console.log(checkedProducts);
+            checkedProducts.forEach((product) => {
+                state.imagebox.forEach((image) => {
+                    let isImageExist = product.images.some(value => value.file === image.file);
+                    if (!isImageExist) {
+                        product.images.push(image);
+                        product.changed = true;
+                    }
+                });
+            });
+        },
+        SET_TOKEN_TO_STATE: (state, api) => {
+            localStorage.setItem('token', api);
+            state.token = api;
+        },
+        DESTROY_TOKEN_IN_STATE: (state, errMsg) => {
+            localStorage.removeItem('token');
+            state.token = null;
+            state.loginMessage = errMsg;
+        },
+        TOGGLE_LOADER: (state) => {
+            state.showLoader = !state.showLoader;
+        },
+        FILTER_PRODUCTS_IN_STATE: (state, brands) => {
+            // console.log(brands)
+            state.products.forEach((product) => {
+                product.show = brands.some(value => value === product.brand);
+            });
+        },
+        SET_SERVER_IMAGES_TO_STATE: (state, images) => {
+            state.serverImages = images;
+        },
+        CLEAR_SERVER_IMAGES_IN_STATE: (state) => {
+            state.serverImages = [];
+        },
+        SET_FROM_SERVER_IMAGES_TO_IMAGEBOX_IN_STATE: (state, images) => {
+            images.forEach((image) => {
+                console.log(image);
+                (!state.imagebox.some(value => value.file === image) ?
+                state.imagebox.push({'file': image, 'id':'', 'name':''}) : 0 );
 
+            });
+        },
     },
     actions: {
-        GET_PRODUCTS_FROM_API({commit}, cat_id) {
-            return axios({
+        HTTP({state, commit}, data) {
+            return new Promise((resolve, reject) => {
+                commit('TOGGLE_LOADER');
+                if (state.token) {
+                    axios.defaults.headers.common['api'] = state.token;
+                }
+                axios({
+                    method: data.method,
+                    url: data.url,
+                    data: data.data,
+                    headers: data.headers
+                })
+                    .then((response) => {
+                        commit('TOGGLE_LOADER');
+                        // console.log('response: ', response);
+                        resolve(response);
+                    })
+                    .catch((error) => {
+                        commit('TOGGLE_LOADER');
+                        // console.log('error.response: ', error.response);
+                        if (error.response.status === 401) {
+                            commit('DESTROY_TOKEN_IN_STATE', (error.response.data));
+                        } else {
+                            console.log('error: ', error.response.data);
+                            alert('Ошибка при обращении к серверу! Подробности в консоли.');
+                        }
+                        reject(error)
+                    })
+            })
+        },
+        LOGIN_USER({dispatch, commit}, data) {
+            return new Promise((resolve, reject) => {
+                dispatch('HTTP', {
+                    method: "post",
+                    url: 'https://test.chelinstrument.ru/img-api/api-login.php',
+                    data: data
+                })
+                    .then((response) => {
+                        // console.log(response.data);
+                        commit('SET_TOKEN_TO_STATE', response.data);
+                        resolve(response);
+                    })
+                    .catch((error) => {
+                        reject(error)
+                    });
+            })
+        },
+        GET_CATS_FROM_API({commit, dispatch}) {
+            dispatch('HTTP', {
+                method: "get",
+                url: 'https://test.chelinstrument.ru/img-api/api-get-cats.php',
+            })
+                .then((response) => {
+                    // console.log(response.data);
+                    commit('SET_CATS_TO_STATE', response.data);
+                });
+        },
+        GET_PRODUCTS_FROM_API({commit, dispatch}, cat_id) {
+            dispatch('HTTP', {
                 method: "post",
                 url: 'https://test.chelinstrument.ru/img-api/api-get-products.php',
                 data: {
@@ -136,25 +233,32 @@ let store = new Vuex.Store({
                 .then((response) => {
                     // console.log(response.data);
                     commit('SET_PRODUCTS_TO_STATE', response.data);
-                    return response;
-                })
-                .catch((error) => {
-                    console.log(error);
-                    return error;
-                })
+                });
         },
-        GET_CATS_FROM_API({commit}) {
-            return axios('https://test.chelinstrument.ru/img-api/api-get-cats.php', {
-                method: "GET"
+        GET_ALL_IMAGES_FROM_API({commit, dispatch}) {
+            dispatch('HTTP', {
+                method: "get",
+                url: 'https://test.chelinstrument.ru/img-api/api-get-all-images.php',
             })
                 .then((response) => {
-                    commit('SET_CATS_TO_STATE', response.data);
-                    return response;
+                    // console.log(response.data);
+                    commit('SET_SERVER_IMAGES_TO_STATE', response.data);
+                });
+        },
+        SAVE_CHANGED_PRODUCTS_ON_SERVER({state, dispatch}) {
+            let changedProducts = state.products.filter(value => value.changed === true);
+            dispatch('HTTP', {
+                method: "post",
+                url: 'https://test.chelinstrument.ru/img-api/api-save-changed-products.php',
+                data: changedProducts
+            })
+                .then((response) => {
+                    console.log(response.data);
+                    // commit('SET_PRODUCTS_TO_STATE', response.data);
                 })
                 .catch((error) => {
                     console.log(error);
-                    return error;
-                })
+                });
         },
         SET_SELECTED_IMAGES_TO_PRODUCTS({commit}, product) {
             commit('SET_SELECTED_IMAGES_TO_STATE', product)
@@ -183,8 +287,26 @@ let store = new Vuex.Store({
         SET_PRODUCT_CHECKED_VALUE({commit}, product) {
             commit('SET_PRODUCT_CHECKED_VALUE_TO_STATE', product)
         },
+        ADD_IMAGEBOX_TO_CHECKED_PRODUCTS({commit}) {
+            commit('ADD_IMAGEBOX_TO_CHECKED_PRODUCTS_IN_STATE')
+        },
+        FILTER_PRODUCTS({commit}, brands) {
+            commit('FILTER_PRODUCTS_IN_STATE', brands)
+        },
+        CLEAR_SERVER_IMAGES({commit}) {
+            commit('CLEAR_SERVER_IMAGES_IN_STATE')
+        },
+        SET_FROM_SERVER_IMAGES_TO_IMAGEBOX({commit}, images) {
+            commit('SET_FROM_SERVER_IMAGES_TO_IMAGEBOX_IN_STATE', images)
+        },
     },
     getters: {
+        LOGGED(state) {
+            return state.token !== null;
+        },
+        LOGIN_MESSAGE(state) {
+            return state.loginMessage;
+        },
         PRODUCTS(state) {
             return state.products;
         },
@@ -193,6 +315,18 @@ let store = new Vuex.Store({
         },
         IMAGEBOX(state) {
             return state.imagebox;
+        },
+        HAS_CHANGED_PRODUCTS(state) {
+            return state.products.some(value => value.changed === true);
+        },
+        SHOW_LOADER(state) {
+            return state.showLoader;
+        },
+        PRODUCTS_BRANDS(state) {
+            return state.productsBrands;
+        },
+        SERVER_IMAGES(state) {
+            return state.serverImages;
         },
     }
 });

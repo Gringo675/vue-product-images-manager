@@ -19,13 +19,14 @@
             <input type="file" name="inputFiles" ref="inputFiles" multiple
                    @change="handleFileUpload()">
             <button @click="submitFile">Submit</button>
+            <button @click="GET_ALL_IMAGES_FROM_API">С сервера</button>
+            <button @click="ADD_IMAGEBOX_TO_CHECKED_PRODUCTS">Добавить</button>
         </div>
     </div>
 </template>
 
 <script>
     import {mapActions, mapGetters} from 'vuex'
-    import axios from 'axios'
 
     export default {
         name: "v-imagebox",
@@ -43,8 +44,11 @@
         watch: {},
         methods: {
             ...mapActions([
+                'HTTP',
                 'SET_UPLOAD_IMAGE_TO_IMAGEBOX',
                 'DELETE_IMAGE_IN_IMAGEBOX',
+                'ADD_IMAGEBOX_TO_CHECKED_PRODUCTS',
+                'GET_ALL_IMAGES_FROM_API'
             ]),
             handleFileUpload() {
                  this.inputFiles = this.$refs.inputFiles.files;
@@ -63,7 +67,7 @@
                     if (isFormDataHasFiles) {
 // axios странно работает. Получается отправить либо $_POST(и то с чтением из потока php://input,
 // либо $_FILES. Пока мне этого достаточно, но...
-                        axios({
+                        this.HTTP({
                             method: "post",
                             url: 'https://test.chelinstrument.ru/img-api/api-set-images.php',
                             data: formData,
@@ -95,6 +99,11 @@
         position: fixed;
         bottom: 40px;
         left: 40px;
+        width: 200px;
+    }
+
+    .v-imagebox button {
+        margin:10px;
     }
 
     .imagebox-item img {
