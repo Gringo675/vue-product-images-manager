@@ -16,13 +16,12 @@
                  v-for="(image, index) in product_data.images"
                  :key="image.file"
             >
-                <label
-                        :for='product_data.ean + "_" + image.file'>
-                    <img
-                            :src='"https://test.chelinstrument.ru/components/com_jshopping/files/img_products/" + image.file'
-                            :alt='image.name'
-                    >
-                </label>
+                <img
+                        :src='HOST + "/components/com_jshopping/files/img_products/" + image.file'
+                        :alt='image.name'
+                        @click="openLightbox(product_data.images, index)"
+                >
+
                 <input type="checkbox"
                        :id='product_data.ean + "_" + image.file'
                        :value='image.file'
@@ -47,10 +46,13 @@
 </template>
 
 <script>
-    import {mapActions} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
 
     export default {
         name: "v-catalog-item",
+        components: {
+
+        },
         props: {
             product_data: {
                 type: Object,
@@ -61,8 +63,14 @@
         },
         data() {
             return {
-
+                isLightboxVisible: false,
+                lightbox_data: {}
             }
+        },
+        computed: {
+            ...mapGetters([
+                'HOST',
+            ])
         },
         methods: {
             ...mapActions([
@@ -71,7 +79,7 @@
                 'SET_PRODUCT_CHECKED_VALUE'
             ]),
             moveLeft(index) {
-                 let product = {
+                let product = {
                     'index': this.product_data.index,
                     'imageIndex': index,
                     'direction': 'left'
@@ -86,6 +94,16 @@
                 };
                 this.MOVE_IMAGE_IN_PRODUCT(product);
             },
+            openLightbox(images, index) {
+                this.lightbox_data = {
+                    images: images,
+                    index: index
+                };
+                this.isLightboxVisible = true;
+            },
+            closeLightbox() {
+                this.isLightboxVisible = false;
+            }
         },
         watch: {
             'product_data.itemCheckedImgs'(checked) {
@@ -95,7 +113,7 @@
                     'checkedImages': checked
                 };
                 this.SET_SELECTED_IMAGES_TO_PRODUCTS(product);
-                      // console.log(checkedID);
+                // console.log(checkedID);
             },
             'product_data.checked'(value) {
                 // console.log('product_data: ', this.product_data);

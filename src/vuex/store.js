@@ -2,10 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 
+// const HOST = 'https://test.chelinstrument.ru';
+
 Vue.use(Vuex);
 
 let store = new Vuex.Store({
     state: {
+        HOST: 'https://test.chelinstrument.ru',
         token: localStorage.getItem('token') || null,
         loginMessage: 'Введите учетные данные.',
         products: [],
@@ -13,11 +16,12 @@ let store = new Vuex.Store({
         cats: [],
         imagebox: [],
         showLoader: false,
-        serverImages: []
+        serverImages: [],
+        imageViewer: {'images': {}, 'index': null}
     },
     mutations: {
         SET_PRODUCTS_TO_STATE: (state, products) => {
-            state.productsBrands = []; // формируем для фильтра
+            state.productsBrands.length = 0; // формируем для фильтра
             products.forEach(function (product, i) {
                 product.index = i;
                 product.itemCheckedImgs = [];
@@ -89,6 +93,12 @@ let store = new Vuex.Store({
             let element = state.products[product.index].images.splice(product.imageIndex, 1);
             state.products[product.index].images.splice(product.imageIndex + move, 0, element[0]);
             state.products[product.index].changed = true;
+        },
+        MOVE_IMAGE_IN_IMAGEBOX_IN_STATE: (state, data) => {
+            // Для смещения вниз move = 1, вверх move = -1
+            let move = (data.direction === 'up' ? -1 : 1);
+            let element = state.imagebox.splice(data.index, 1);
+            state.imagebox.splice(data.index + move, 0, element[0]);
         },
         SET_IMAGES_TO_IMAGEBOX_IN_STATE: (state) => {
             state.products.forEach(function (item) {
@@ -163,6 +173,18 @@ let store = new Vuex.Store({
 
             });
         },
+        CLEAR_IMAGEBOX_IN_STATE: (state) => {
+            state.imagebox.splice(0,state.imagebox.length);
+        },
+        SET_IMAGEVIEWER_IN_STATE: (state, data) => {
+            state.imageViewer = data
+        },
+        CHANGE_IMAGEVIEWER_INDEX_IN_STATE: (state, index) => {
+            state.imageViewer.index = index
+        },
+        CLEAR_IMAGEVIEWER_IN_STATE: (state) => {
+            state.imageViewer.images.splice(0,state.imageViewer.images.length);
+        },
     },
     actions: {
         HTTP({state, commit}, data) {
@@ -212,10 +234,10 @@ let store = new Vuex.Store({
                     });
             })
         },
-        GET_CATS_FROM_API({commit, dispatch}) {
+        GET_CATS_FROM_API({state, commit, dispatch}) {
             dispatch('HTTP', {
                 method: "get",
-                url: 'https://test.chelinstrument.ru/img-api/api-get-cats.php',
+                url: state.HOST + '/img-api/api-get-cats.php',
             })
                 .then((response) => {
                     // console.log(response.data);
@@ -244,6 +266,23 @@ let store = new Vuex.Store({
                     // console.log(response.data);
                     commit('SET_SERVER_IMAGES_TO_STATE', response.data);
                 });
+        },
+        SUBMIT_IMAGES_TO_SERVER({dispatch}, files) {
+            return new Promise((resolve) => {
+                // axios странно работает. Получается отправить либо $_POST(и то с чтением из потока php://input,
+                // либо $_FILES. Пока мне этого достаточно, но...
+                dispatch('HTTP', {
+                    method: "post",
+                    url: 'https://test.chelinstrument.ru/img-api/api-set-images.php',
+                    data: files,
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+                    .then((response) => {
+                        resolve(response);
+                    })
+            })
         },
         SAVE_CHANGED_PRODUCTS_ON_SERVER({state, dispatch}) {
             let changedProducts = state.products.filter(value => value.changed === true);
@@ -275,6 +314,9 @@ let store = new Vuex.Store({
         MOVE_IMAGE_IN_PRODUCT({commit}, product) {
             commit('MOVE_IMAGE_IN_PRODUCT_IN_STATE', product);
         },
+        MOVE_IMAGE_IN_IMAGEBOX({commit}, data) {
+            commit('MOVE_IMAGE_IN_IMAGEBOX_IN_STATE', data);
+        },
         SET_IMAGES_TO_IMAGEBOX({commit}) {
             commit('SET_IMAGES_TO_IMAGEBOX_IN_STATE');
         },
@@ -299,8 +341,23 @@ let store = new Vuex.Store({
         SET_FROM_SERVER_IMAGES_TO_IMAGEBOX({commit}, images) {
             commit('SET_FROM_SERVER_IMAGES_TO_IMAGEBOX_IN_STATE', images)
         },
+        CLEAR_IMAGEBOX({commit}) {
+            commit('CLEAR_IMAGEBOX_IN_STATE')
+        },
+        SET_IMAGEVIEWER({commit}, data) {
+            commit('SET_IMAGEVIEWER_IN_STATE', data)
+        },
+        CHANGE_IMAGEVIEWER_INDEX({commit}, index) {
+            commit('CHANGE_IMAGEVIEWER_INDEX_IN_STATE', index)
+        },
+        CLEAR_IMAGEVIEWER({commit}) {
+            commit('CLEAR_IMAGEVIEWER_IN_STATE')
+        },
     },
     getters: {
+        HOST(state) {
+            return state.HOST
+        },
         LOGGED(state) {
             return state.token !== null;
         },
@@ -319,6 +376,12 @@ let store = new Vuex.Store({
         HAS_CHANGED_PRODUCTS(state) {
             return state.products.some(value => value.changed === true);
         },
+        HAS_CHECKED_IMAGES(state) {
+            return state.products.some(value => value.itemCheckedImgs.length);
+        },
+        HAS_IMAGES_IN_IMAGEBOX(state) {
+            return state.imagebox.length > 0;
+        },
         SHOW_LOADER(state) {
             return state.showLoader;
         },
@@ -328,6 +391,12 @@ let store = new Vuex.Store({
         SERVER_IMAGES(state) {
             return state.serverImages;
         },
+        IMAGEVIEWER(state) {
+            return state.imageViewer
+        },
+        SHOW_IMAGEVIEWER(state) {
+            return state.imageViewer.images.length > 0;
+        }
     }
 });
 

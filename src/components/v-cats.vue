@@ -1,15 +1,9 @@
 <template>
     <div class="v-cats">
-        <p>Здесь будут категории</p>
-        <!--        <vCatsItem-->
-        <!--                v-for="cat in CATS"-->
-        <!--                :key="cat.ean"-->
-        <!--                :cat_data="cat"-->
-        <!--        />-->
-        <div class="test">
+        <div class="select-block">
 
             <select v-model="selected" @change="catChanged">
-                <option disabled value="">Выберите один из вариантов</option>
+                <option disabled value="">Выберите категорию</option>
                 <option
                         v-for="cat in CATS"
                         v-bind:value="cat.ean"
@@ -18,15 +12,27 @@
                     {{ cat.name }}
                 </option>
             </select>
-            <span>Выбрано: {{ selected }}</span>
-
-
+        </div>
+        <div class="filter-block">
+            <span>Фильтр: </span>
+            <span class="filter-element"
+                  v-for="brand in PRODUCTS_BRANDS"
+                  :key="brand">
+                <label
+                        :for='brand'>
+                    {{brand}}
+                </label>
+                 <input type="checkbox"
+                        :id='brand'
+                        :value='brand'
+                        v-model="checkedBrands"
+                        @change="FILTER_PRODUCTS(checkedBrands)">
+            </span>
         </div>
     </div>
 </template>
 
 <script>
-    // import vCatsItem from './v-cats-item'
     import {mapActions, mapGetters} from 'vuex'
 
     export default {
@@ -34,41 +40,31 @@
         data() {
             return {
                 selected: '',
-                previosSelected: ''
+                checkedBrands: []
             }
         },
-        components: {
-            // vCatsItem
-        },
+        components: {},
         computed: {
             ...mapGetters([
                 'CATS',
                 'PRODUCTS',
-                'HAS_CHANGED_PRODUCTS'
+                'HAS_CHANGED_PRODUCTS',
+                'PRODUCTS_BRANDS'
             ]),
         },
         watch: {
-            // selected(ean, previosEan) {
-            //     console.log('ean: ', ean);
-            //     console.log('previosEan: ', previosEan);
-            //     let hasChanged = this.PRODUCTS.some(value => value.changed === true);
-            //     if (hasChanged) {
-            //         let isProceed = confirm('На странице есть измененные элементы. Если Вы продолжите, они будут сброшены. Продолжить?');
-            //         if (!isProceed) {
-            //             this.selected = previosEan;
-            //             return
-            //         }
-            //     }
-            //     this.GET_PRODUCTS_FROM_API(ean);
-            // }
+            'PRODUCTS_BRANDS'(newValue) {
+                this.checkedBrands = newValue
+            }
         },
         methods: {
             ...mapActions([
                 'GET_CATS_FROM_API',
-                'GET_PRODUCTS_FROM_API'
+                'GET_PRODUCTS_FROM_API',
+                'FILTER_PRODUCTS'
             ]),
             catChanged() {
-                   if (this.HAS_CHANGED_PRODUCTS) {
+                if (this.HAS_CHANGED_PRODUCTS) {
                     let isProceed = confirm('На странице есть измененные элементы. Если Вы продолжите, они не будут сохранены. Продолжить?');
                     if (!isProceed) {
                         this.selected = this.previosSelected;
@@ -77,7 +73,6 @@
                 }
                 this.previosSelected = this.selected;
                 this.GET_PRODUCTS_FROM_API(this.selected);
-                // console.log('e: ', e);
             }
         },
         mounted() {
@@ -86,6 +81,26 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss">
+    .v-cats {
+
+        .select-block {
+            margin-bottom: 10px;
+
+            select {
+                width: 400px;
+                font-size: 16px;
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+        }
+        .filter-block {
+
+            .filter-element {
+                margin: 0 5px;
+            }
+        }
+    }
 
 </style>

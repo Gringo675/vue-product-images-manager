@@ -4,7 +4,10 @@ import store from './vuex/store'
 
 Vue.config.productionTip = false;
 
+
 new Vue({
     render: h => h(App),
-    store
+    store,
+    data:{
+    },
 }).$mount('#app');

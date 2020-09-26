@@ -1,0 +1,18 @@
+// файл подключается во vue.config.js
+// похоже, подключается заново к каждому компоненту => подходит только для миксинов и т.п.
+
+
+@mixin arrow($thick, $width, $color, $direction) {
+  border: solid $color;
+  border-width: 0 $thick $thick 0;
+  display: inline-block;
+  padding: $width;
+  position: relative;
+  top: -$width/2;
+  @if ($direction == down) {
+    transform: rotate(45deg);
+    top: -$width/2;}
+  @else if ($direction == up) {
+    transform: rotate(-135deg);
+    top: $width/2;}
+}
