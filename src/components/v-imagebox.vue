@@ -16,22 +16,22 @@
             <div class="toggle"
                  @click="toggleImagebox">
                 <div class="btn-del"
-                     @click="CLEAR_IMAGEBOX"
+                     @click.stop="clearImagebox"
                 ></div>
                 <span class="total">Всего: {{IMAGEBOX.length}}</span>
                 <i class="arrow"
                    :class="showImageboxItems ? 'up' : 'down'"></i>
             </div>
 
-            <div class="imagebox-items"
+            <div class="image-items"
                  v-show="showImageboxItems">
-                <div class="imagebox-item"
+                <div class="image-item"
                      v-for="(image, index) in IMAGEBOX"
                      :key="image.file"
-                     @click="createImageViewer(index)"
                 >
                     <img
-                            :src='"https://test.chelinstrument.ru/components/com_jshopping/files/img_products/thumb_" + image.file'
+                            @click="createImageViewer(index)"
+                            :src='HOST + "/components/com_jshopping/files/img_products/thumb_" + image.file'
                             :alt='image.name'
                     >
                     <div class="buttons">
@@ -71,6 +71,7 @@
             ...mapGetters([
                 'IMAGEBOX',
                 'HAS_IMAGES_IN_IMAGEBOX',
+                'HOST',
 
             ]),
         },
@@ -114,6 +115,10 @@
             toggleImagebox() {
                 this.showImageboxItems = !this.showImageboxItems
             },
+            clearImagebox() {
+                this.showImageboxItems = false;
+                this.CLEAR_IMAGEBOX();
+            },
             createImageViewer(index) {
                 // let aaa = this.IMAGEBOX; копирует по ссылке (IMAGEBOX <=> IMAGEVIEWER)
                 // let aaa = Object.assign({}, {images: this.IMAGEBOX}, {'index': index}); копирует по ссылке
@@ -139,67 +144,6 @@
             width: 200px;
             top: 76px;
             left: 149px;
-
-            .imagebox-items {
-                margin: 1px;
-                padding: 10px;
-                background: #f3f3f3;
-                overflow: auto;
-                max-height: 400px;
-                border: 1px solid #ccc;
-                border-radius: 0 0 5px 5px;
-
-                .imagebox-item {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    margin-top: 10px;
-
-                    &:first-child {
-                        margin-top: 0;
-                    }
-
-                    img {
-                        width: 100px;
-                        padding: 5px;
-                        border: 1px solid #ccc;
-                        border-radius: 5px;
-                        background: white;
-                    }
-
-                    .buttons {
-                        margin: 10px;
-
-                        .btn-del {
-                            position: static;
-                            margin: 10px auto;
-                        }
-
-                        .btn {
-                            border: 1px solid #ccc;
-                            border-radius: 5px;
-                            padding: 3px 5px;
-                            background: #e4e4e4;
-                            cursor: pointer;
-
-                            &:hover {
-                                box-shadow: 0 0 6px 1px #ccc;
-                            }
-
-
-                            i.arrow.up {
-                                @include arrow(2px, 6px, #687adc, up);
-                            }
-
-                            i.arrow.down {
-                                @include arrow(2px, 6px, #687adc, down);
-                            }
-                        }
-                    }
-                }
-            }
-
-
         }
     }
 

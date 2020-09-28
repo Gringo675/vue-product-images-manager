@@ -2,8 +2,6 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 
-// const HOST = 'https://test.chelinstrument.ru';
-
 Vue.use(Vuex);
 
 let store = new Vuex.Store({
@@ -39,10 +37,9 @@ let store = new Vuex.Store({
         SET_SELECTED_IMAGES_TO_STATE: (state, product) => {
             state.products[product.index].itemCheckedImgs = product.checkedImages;
         },
-        RESET_SELECTED_PRODUCTS_AND_IMAGES_IN_STATE: (state) => {
-            state.products.forEach(function (item, i, products) {
-                products[i].checked = false;
-                products[i].itemCheckedImgs = [];
+        RESET_SELECTED_IMAGES_IN_STATE: (state) => {
+            state.products.forEach(function (item) {
+                item.itemCheckedImgs = [];
             });
         },
         DELETE_SELECTED_IMAGES_IN_STATE: (state) => {
@@ -185,6 +182,16 @@ let store = new Vuex.Store({
         CLEAR_IMAGEVIEWER_IN_STATE: (state) => {
             state.imageViewer.images.splice(0,state.imageViewer.images.length);
         },
+        UNCHECK_IMAGE_IN_STATE: (state, filename) => {
+            // console.log(filename)
+            state.products.forEach((product) => {
+                product.itemCheckedImgs.forEach((itemFilename, index) => {
+                    if (itemFilename === filename) {
+                        product.itemCheckedImgs.splice(index, 1);
+                    }
+                })
+            })
+        }
     },
     actions: {
         HTTP({state, commit}, data) {
@@ -217,11 +224,11 @@ let store = new Vuex.Store({
                     })
             })
         },
-        LOGIN_USER({dispatch, commit}, data) {
+        LOGIN_USER({state, dispatch, commit}, data) {
             return new Promise((resolve, reject) => {
                 dispatch('HTTP', {
                     method: "post",
-                    url: 'https://test.chelinstrument.ru/img-api/api-login.php',
+                    url: state.HOST + '/img-api/api-login.php',
                     data: data
                 })
                     .then((response) => {
@@ -244,10 +251,10 @@ let store = new Vuex.Store({
                     commit('SET_CATS_TO_STATE', response.data);
                 });
         },
-        GET_PRODUCTS_FROM_API({commit, dispatch}, cat_id) {
+        GET_PRODUCTS_FROM_API({state, commit, dispatch}, cat_id) {
             dispatch('HTTP', {
                 method: "post",
-                url: 'https://test.chelinstrument.ru/img-api/api-get-products.php',
+                url: state.HOST + '/img-api/api-get-products.php',
                 data: {
                     'cat_id': cat_id
                 }
@@ -257,23 +264,23 @@ let store = new Vuex.Store({
                     commit('SET_PRODUCTS_TO_STATE', response.data);
                 });
         },
-        GET_ALL_IMAGES_FROM_API({commit, dispatch}) {
+        GET_ALL_IMAGES_FROM_API({state, commit, dispatch}) {
             dispatch('HTTP', {
                 method: "get",
-                url: 'https://test.chelinstrument.ru/img-api/api-get-all-images.php',
+                url: state.HOST + '/img-api/api-get-all-images.php',
             })
                 .then((response) => {
                     // console.log(response.data);
                     commit('SET_SERVER_IMAGES_TO_STATE', response.data);
                 });
         },
-        SUBMIT_IMAGES_TO_SERVER({dispatch}, files) {
+        SUBMIT_IMAGES_TO_SERVER({state, dispatch}, files) {
             return new Promise((resolve) => {
                 // axios странно работает. Получается отправить либо $_POST(и то с чтением из потока php://input,
                 // либо $_FILES. Пока мне этого достаточно, но...
                 dispatch('HTTP', {
                     method: "post",
-                    url: 'https://test.chelinstrument.ru/img-api/api-set-images.php',
+                    url: state.HOST + '/img-api/api-set-images.php',
                     data: files,
                     headers: {
                         'Content-Type': 'multipart/form-data'
@@ -288,7 +295,7 @@ let store = new Vuex.Store({
             let changedProducts = state.products.filter(value => value.changed === true);
             dispatch('HTTP', {
                 method: "post",
-                url: 'https://test.chelinstrument.ru/img-api/api-save-changed-products.php',
+                url: state.HOST + '/img-api/api-save-changed-products.php',
                 data: changedProducts
             })
                 .then((response) => {
@@ -302,8 +309,8 @@ let store = new Vuex.Store({
         SET_SELECTED_IMAGES_TO_PRODUCTS({commit}, product) {
             commit('SET_SELECTED_IMAGES_TO_STATE', product)
         },
-        RESET_SELECTED_PRODUCTS_AND_IMAGES({commit}) {
-            commit('RESET_SELECTED_PRODUCTS_AND_IMAGES_IN_STATE');
+        RESET_SELECTED_IMAGES({commit}) {
+            commit('RESET_SELECTED_IMAGES_IN_STATE');
         },
         DELETE_SELECTED_IMAGES({commit}) {
             commit('DELETE_SELECTED_IMAGES_IN_STATE');
@@ -353,6 +360,9 @@ let store = new Vuex.Store({
         CLEAR_IMAGEVIEWER({commit}) {
             commit('CLEAR_IMAGEVIEWER_IN_STATE')
         },
+        UNCHECK_IMAGE({commit}, filename) {
+            commit('UNCHECK_IMAGE_IN_STATE', filename)
+        }
     },
     getters: {
         HOST(state) {
@@ -376,8 +386,26 @@ let store = new Vuex.Store({
         HAS_CHANGED_PRODUCTS(state) {
             return state.products.some(value => value.changed === true);
         },
-        HAS_CHECKED_IMAGES(state) {
-            return state.products.some(value => value.itemCheckedImgs.length);
+        // HAS_CHECKED_IMAGES(state) {
+        //     return state.products.some(value => value.itemCheckedImgs.length);
+        // },
+        HAS_CHECKED_IMAGES(state, getters) {
+            return getters.CHECKED_IMAGES.length > 0;
+        },
+        CHECKED_IMAGES(state) {
+            let result = [];
+            state.products.forEach(function (item) {
+                if (item.itemCheckedImgs.length) {
+                    item.itemCheckedImgs.forEach(function (checkedImg) {
+                        // console.log('checkedImg ', checkedImg);
+                        let image = item.images.filter((img) => img.file === checkedImg)[0];
+                        let isImageExist = result.some((img) => img.file === image.file);
+                        (!isImageExist ? result.push(image) : 0);
+                        // console.log('image ', image);
+                    });
+                }
+            });
+            return result;
         },
         HAS_IMAGES_IN_IMAGEBOX(state) {
             return state.imagebox.length > 0;
