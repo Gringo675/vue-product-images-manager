@@ -1,13 +1,14 @@
 <template>
-    <div class="v-lightbox">
-        <div class="wrapper" ref="lightbox-wrapper">
+    <div class="v-image-viewer">
+        <div class="wrapper" ref="viewer-wrapper">
             <div class="image-block">
                 <img
                         :src='HOST + "/components/com_jshopping/files/img_products/full_"
                                 + IMAGEVIEWER.images[IMAGEVIEWER.index].file'
                 >
             </div>
-            <div class="control-block">
+            <div class="control-block"
+                v-if="IMAGEVIEWER.images.length > 1">
                 <div class="btn btn-up"
                      @click="rollImages('up')"
                 ><i class="arrow up"></i></div>
@@ -73,23 +74,38 @@ import {mapActions, mapGetters} from 'vuex'
                     this.CHANGE_IMAGEVIEWER_INDEX(index);
                 }
             },
+            onKeyUp(e) {
+                if (e.key ==='Escape') {
+                    this.CLEAR_IMAGEVIEWER();
+                }
+            }
 
         },
         watch: {},
         mounted() {
             // let vm=this;
             // document.addEventListener('click', function(item) {
-            //     if(item.target === vm.$refs['lightbox-wrapper']) {
-            //         vm.closeLightbox();
+            //     if(item.target === vm.$refs['viewer-wrapper']) {
+            //         console.log(111);
+            //         vm.CLEAR_IMAGEVIEWER();
             //     }
             // })
+            document.addEventListener('click', (e) => {
+                if(e.target === this.$refs['viewer-wrapper']) {
+                    this.CLEAR_IMAGEVIEWER();
+                }
+            });
+            document.addEventListener('keyup', this.onKeyUp)
         },
+        beforeDestroy() {
+            document.removeEventListener('keyup', this.onKeyUp)
+        }
     }
 </script>
 
 <style lang="scss">
 
-    .v-lightbox {
+    .v-image-viewer {
         position: fixed;
         top: 0;
         right: 0;

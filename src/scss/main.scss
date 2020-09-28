@@ -5,14 +5,16 @@
 @mixin arrow($thick, $width, $color, $direction) {
   border: solid $color;
   border-width: 0 $thick $thick 0;
-  display: inline-block;
+  display: block;
+  width: 0;
+  margin: 0 auto;
   padding: $width;
   position: relative;
-  top: -$width/2;
   @if ($direction == down) {
     transform: rotate(45deg);
-    top: -$width/2;}
-  @else if ($direction == up) {
+    top: -$width/2 - 1;
+  } @else if ($direction == up) {
     transform: rotate(-135deg);
-    top: $width/2;}
+    top: $width/2 + 1;
+  }
 }

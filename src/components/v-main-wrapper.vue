@@ -35,9 +35,37 @@
                             @click="SET_IMAGES_TO_IMAGEBOX">
                         В буфер
                     </button>
-
                 </div>
+                <div class="holder"
+                     v-if="HAS_CHECKED_IMAGES">
+                    <div class="toggle"
+                         @click="toggleHolder2">
+                        <div class="btn-del"
+                             @click.stop="resetSelectedImages"
+                        ></div>
+                        <span class="total">Всего: {{CHECKED_IMAGES.length}}</span>
+                        <i class="arrow"
+                           :class="showHolder2Items ? 'up' : 'down'"></i>
+                    </div>
 
+                    <div class="image-items"
+                         v-show="showHolder2Items">
+                        <div class="image-item"
+                             v-for="(image) in CHECKED_IMAGES"
+                             :key="image.file"
+                        >
+                            <img
+                                    @click="console.log('createImageViewer(index)')"
+                                    :src='HOST + "/components/com_jshopping/files/img_products/thumb_" + image.file'
+                                    :alt='image.name'
+                            >
+                            <div class="buttons">
+                                <div class="btn-del" @click="UNCHECK_IMAGE(image.file)"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="header-block-3">
                 <vImagebox/>
@@ -76,13 +104,16 @@
         },
         props: {},
         data() {
-            return {}
+            return {
+                showHolder2Items: false,
+            }
         },
         computed: {
             ...mapGetters([
                 'HAS_CHANGED_PRODUCTS',
                 'HAS_CHECKED_IMAGES',
-
+                'CHECKED_IMAGES',
+                'HOST'
             ]),
         },
         methods: {
@@ -92,8 +123,16 @@
                 'SELECT_SAME_IMAGES',
                 'SET_IMAGES_TO_IMAGEBOX',
                 'SAVE_CHANGED_PRODUCTS_ON_SERVER',
-
+                'RESET_SELECTED_IMAGES',
+                'UNCHECK_IMAGE'
             ]),
+            toggleHolder2() {
+                this.showHolder2Items = !this.showHolder2Items;
+            },
+            resetSelectedImages() {
+                this.showHolder2Items = false;
+                this.RESET_SELECTED_IMAGES();
+            }
         },
         watch: {},
         mounted() {
@@ -106,6 +145,7 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
+        align-items: center;
         width: 1280px;
         min-height: 100vh;
         margin: 0 auto;
@@ -116,7 +156,8 @@
             top: 0;
             display: flex;
             flex-direction: row;
-            justify-content: left;
+            justify-content: center;
+            width: 100vw;
             background: #f7bd94;
             box-shadow: 0px 6px 6px 4px #f7bd94;
 
@@ -172,15 +213,18 @@
             }
 
             .header-block-2 {
-
+                position: relative;
+                .holder {
+                    width: 200px;
+                    top: 81px;
+                    left: 31px;
+                }
 
             }
 
             .header-block-3 {
 
-                .v-imagebox {
 
-                }
             }
 
             .holder {
@@ -201,7 +245,7 @@
                     top: 9px;
                     cursor: pointer;
 
-                   &:after {
+                    &:after {
                         content: '\2716';
                         font-size: 14px;
                         line-height: 18px;
@@ -230,11 +274,71 @@
                     }
 
                     i.arrow.up {
-                        @include arrow(2px, 6px, #a2cece, up);
+                        @include arrow(2px, 8px, #687adc, up);
                     }
 
                     i.arrow.down {
-                        @include arrow(2px, 6px, #a2cece, down);
+                        @include arrow(2px, 8px, #687adc, down);
+                    }
+                }
+
+                .image-items {
+                    margin: 1px;
+                    padding: 10px;
+                    background: #f3f3f3;
+                    overflow: auto;
+                    max-height: 400px;
+                    border: 1px solid #ccc;
+                    border-radius: 0 0 5px 5px;
+
+                    .image-item {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        margin-top: 10px;
+
+                        &:first-child {
+                            margin-top: 0;
+                        }
+
+                        img {
+                            width: 100px;
+                            padding: 5px;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            background: white;
+                            cursor: pointer;
+                        }
+
+                        .buttons {
+                            margin: 10px;
+
+                            .btn-del {
+                                position: static;
+                                margin: 10px auto;
+                            }
+
+                            .btn {
+                                border: 1px solid #ccc;
+                                border-radius: 5px;
+                                padding: 3px 5px;
+                                background: #e4e4e4;
+                                cursor: pointer;
+
+                                &:hover {
+                                    box-shadow: 0 0 6px 1px #ccc;
+                                }
+
+
+                                i.arrow.up {
+                                    @include arrow(2px, 6px, #687adc, up);
+                                }
+
+                                i.arrow.down {
+                                    @include arrow(2px, 6px, #687adc, down);
+                                }
+                            }
+                        }
                     }
                 }
 

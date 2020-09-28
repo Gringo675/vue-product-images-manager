@@ -11,7 +11,7 @@
                  v-show="filterImage(image)"
             >
                 <img
-                        :src='"https://test.chelinstrument.ru/components/com_jshopping/files/img_products/thumb_" + image'
+                        :src='HOST + "/components/com_jshopping/files/img_products/thumb_" + image'
                 >
                 <input type="checkbox"
                        :id='image'
@@ -66,6 +66,7 @@
         computed: {
             ...mapGetters([
                 'SERVER_IMAGES',
+                'HOST',
             ]),
         },
         watch: {},
