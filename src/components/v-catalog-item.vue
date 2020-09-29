@@ -1,47 +1,44 @@
 <template>
-    <div class="v-catalog-item clearfix">
-        <div class="product clearfix">
-            <div class="product-name">
-                <label
-                        :for='product_data.ean'>
-                    {{product_data.name}}
-                </label>
-                <input type="checkbox"
-                       :id='product_data.ean'
-                       :value='product_data.ean'
-                       v-model="product_data.checked">
+    <div class="v-catalog-item">
+        <div class="product-name">
+            <label
+                    :for='product_data.ean'>
+                {{product_data.name}}
+            </label>
+            <input type="checkbox"
+                   :id='product_data.ean'
+                   :value='product_data.ean'
+                   v-model="product_data.checked">
 
-            </div>
-            <div class="product-image"
-                 v-for="(image, index) in product_data.images"
-                 :key="image.file"
-            >
-                <img
-                        :src='HOST + "/components/com_jshopping/files/img_products/" + image.file'
-                        :alt='image.name'
-                        @click="openLightbox(product_data.images, index)"
-                >
-
-                <input type="checkbox"
-                       :id='product_data.ean + "_" + image.file'
-                       :value='image.file'
-                       v-model="product_data.itemCheckedImgs">
-
-                <button
-                        v-if="index !== 0"
-                        @click="moveLeft(index)"
-                >
-                    &#8592;
-                </button>
-                <button
-                        v-if="index !== product_data.images.length-1"
-                        @click="moveRight(index)"
-                >
-                    &#8594;
-                </button>
-            </div>
         </div>
-        <div class="checkedImgs clearfix">checkedImgs: {{ product_data.itemCheckedImgs }}</div>
+        <div class="product-image"
+             v-for="(image, index) in product_data.images"
+             :key="image.file"
+        >
+            <img
+                    :src='HOST + "/components/com_jshopping/files/img_products/" + image.file'
+                    :alt='image.name'
+                    @click="openLightbox(product_data.images, index)"
+            >
+
+            <input type="checkbox"
+                   :id='product_data.ean + "_" + image.file'
+                   :value='image.file'
+                   v-model="product_data.itemCheckedImgs">
+
+            <button
+                    v-if="index !== 0"
+                    @click="moveLeft(index)"
+            >
+                &#8592;
+            </button>
+            <button
+                    v-if="index !== product_data.images.length-1"
+                    @click="moveRight(index)"
+            >
+                &#8594;
+            </button>
+        </div>
     </div>
 </template>
 
@@ -50,9 +47,7 @@
 
     export default {
         name: "v-catalog-item",
-        components: {
-
-        },
+        components: {},
         props: {
             product_data: {
                 type: Object,
@@ -63,8 +58,6 @@
         },
         data() {
             return {
-                isLightboxVisible: false,
-                lightbox_data: {}
             }
         },
         computed: {
@@ -94,16 +87,16 @@
                 };
                 this.MOVE_IMAGE_IN_PRODUCT(product);
             },
-            openLightbox(images, index) {
-                this.lightbox_data = {
-                    images: images,
-                    index: index
-                };
-                this.isLightboxVisible = true;
-            },
-            closeLightbox() {
-                this.isLightboxVisible = false;
-            }
+            // openLightbox(images, index) {
+            //     this.lightbox_data = {
+            //         images: images,
+            //         index: index
+            //     };
+            //     this.isLightboxVisible = true;
+            // },
+            // closeLightbox() {
+            //     this.isLightboxVisible = false;
+            // }
         },
         watch: {
             'product_data.itemCheckedImgs'(checked) {
@@ -128,23 +121,18 @@
     }
 </script>
 
-<style>
-    .product div {
-        float: left;
-    }
+<style lang="scss">
+.v-catalog-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
 
-    .product-image img {
-        width: 70px;
-    }
 
-    .clearfix:after {
-        content: "";
-        display: table;
-        clear: both;
-    }
 
-    .checkedImgs {
-        margin: 20px 0;
-        float: left;
-    }
+}
 </style>

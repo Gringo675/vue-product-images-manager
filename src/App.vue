@@ -43,6 +43,7 @@
         font-size: 16px;
         color: #2c3e50;
         background: #ddf9ea;
+        //overflow-x: hidden
     }
 
     button {

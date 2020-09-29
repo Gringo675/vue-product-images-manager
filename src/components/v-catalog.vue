@@ -1,6 +1,5 @@
 <template>
     <div class="v-catalog">
-        <h1>Каталог</h1>
         <vCatalogItem
                 v-for="product in PRODUCTS"
                 v-show="product.show"
@@ -20,28 +19,27 @@
             vCatalogItem
         },
         data() {
-            return {
-
-            }
+            return {}
         },
         computed: {
             ...mapGetters([
                 'PRODUCTS',
-             ]),
+            ]),
         },
         methods: {
-            ...mapActions([
-
-            ]),
+            ...mapActions([]),
         },
         mounted() {
 
         },
-        watch: {
-        },
+        watch: {},
     }
 </script>
 
-<style>
+<style lang="scss">
+    .v-catalog {
+        padding: 10px;
+    }
+
 
 </style>

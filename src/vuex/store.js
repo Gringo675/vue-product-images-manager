@@ -42,6 +42,11 @@ let store = new Vuex.Store({
                 item.itemCheckedImgs = [];
             });
         },
+        RESET_SELECTED_PRODUCTS_IN_STATE: (state) => {
+            state.products.forEach(function (item) {
+                item.checked = false;
+            });
+        },
         DELETE_SELECTED_IMAGES_IN_STATE: (state) => {
             state.products.forEach(function (item, i, products) {
                 if (products[i].itemCheckedImgs.length) {
@@ -191,6 +196,9 @@ let store = new Vuex.Store({
                     }
                 })
             })
+        },
+        UNCHECK_PRODUCT_IN_STATE: (state, index) => {
+            state.products[index].checked = false
         }
     },
     actions: {
@@ -312,6 +320,9 @@ let store = new Vuex.Store({
         RESET_SELECTED_IMAGES({commit}) {
             commit('RESET_SELECTED_IMAGES_IN_STATE');
         },
+        RESET_SELECTED_PRODUCTS({commit}) {
+            commit('RESET_SELECTED_PRODUCTS_IN_STATE');
+        },
         DELETE_SELECTED_IMAGES({commit}) {
             commit('DELETE_SELECTED_IMAGES_IN_STATE');
         },
@@ -362,6 +373,9 @@ let store = new Vuex.Store({
         },
         UNCHECK_IMAGE({commit}, filename) {
             commit('UNCHECK_IMAGE_IN_STATE', filename)
+        },
+        UNCHECK_PRODUCT({commit}, index) {
+            commit('UNCHECK_PRODUCT_IN_STATE', index)
         }
     },
     getters: {
@@ -406,6 +420,18 @@ let store = new Vuex.Store({
                 }
             });
             return result;
+        },
+        CHECKED_PRODUCTS(state) {
+            let result = [];
+            state.products.forEach(function (item) {
+                if (item.checked) {
+                    result.push(item)
+                }
+            });
+            return result;
+        },
+        HAS_CHECKED_PRODUCTS(state, getters) {
+            return getters.CHECKED_PRODUCTS.length > 0;
         },
         HAS_IMAGES_IN_IMAGEBOX(state) {
             return state.imagebox.length > 0;
