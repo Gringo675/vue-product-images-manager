@@ -1,14 +1,18 @@
 <template>
     <div class="v-login">
-        <form class="login" @submit.prevent="login">
-            <h1>Sign in</h1>
-            <label>Name</label>
-            <input required v-model="name" type="text" placeholder="Name"/>
-            <label>Password</label>
-            <input required v-model="password" type="password" placeholder="Password"/>
-            <button type="submit">Login</button>
-        </form>
-        <div class="message-area">{{LOGIN_MESSAGE}}</div>
+        <div class="form-wrapper">
+            <div class="header">ПОДКЛЮЧЕНИЕ К СЕРВЕРУ</div>
+            <div class="login-form">
+                <form class="login" @submit.prevent="login">
+                    <input required v-model="name" type="text" placeholder="Name"/>
+                    <input required v-model="password" type="password" placeholder="Password"/>
+                    <button type="submit">SEND</button>
+                </form>
+            </div>
+            <div class="message-area">{{LOGIN_MESSAGE}}</div>
+
+        </div>
+
     </div>
 </template>
 
@@ -33,7 +37,7 @@
                     name: this.name,
                     password: this.password
                 })
-                    .then(()=>{
+                    .then(() => {
                         this.message = 'Вы успешно зарегистрированы!';
                     })
                     .catch((error) => {
@@ -49,6 +53,56 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss">
+    .v-login {
+        width: 100%;
+        /*display: flex;*/
+        /*flex-direction: column;*/
+        /*justify-content: center;*/
+        /*align-items: center;*/
 
+        .form-wrapper {
+            width: 400px;
+            margin: 100px auto;
+            padding: 10px;
+            background: #f7bd94;
+            border: 2px solid #ced2f3;
+            border-radius: 5px;
+
+            .header {
+                font-size: 18px;
+                text-align: center;
+            }
+
+            .login-form {
+                margin: 20px 0 10px;
+
+                input {
+                    font-size: 16px;
+                    line-height: 1.5em;
+                    cursor: text;
+                    width: 150px;
+                    padding-left: 10px;
+                    margin-right: 10px;
+                    border: 1px solid #c2c8fb;
+                    border-radius: 5px;
+
+                }
+
+                button {
+                    font-size: 14px;
+                    line-height: 1.5em;
+                    background: #aefbfb;
+                    border: 2px solid #8ac3ce;
+                    border-radius: 5px;
+
+                    &:hover {
+                        background: #e0dbdb;
+                        box-shadow: 0 0 4px #948484;
+                    }
+                }
+            }
+        }
+
+    }
 </style>

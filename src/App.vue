@@ -38,18 +38,18 @@
 
     #app {
         font-family: 'Play', sans-serif;;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
         font-size: 16px;
         color: #2c3e50;
         background: #ddf9ea;
-        //overflow-x: hidden
+        overflow-x: hidden;
+        min-height: 100vh;
     }
 
     button {
         &:focus {
             outline: none;
         }
+
         &:not(.unactive) {
             cursor: pointer;
         }
@@ -102,5 +102,12 @@
         color: #fff;
     }
 
+    input, label {
+        cursor: pointer;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+    }
 
 </style>

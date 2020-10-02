@@ -7,7 +7,7 @@
             <button @click="getFilesFromLocalDisk">С диска</button>
             <button @click="GET_ALL_IMAGES_FROM_API">С сервера</button>
             <button
-                    :class="{ unactive: !HAS_IMAGES_IN_IMAGEBOX}"
+                    :class="{ unactive: !HAS_IMAGES_IN_IMAGEBOX || !HAS_CHECKED_PRODUCTS}"
                     @click="ADD_IMAGEBOX_TO_CHECKED_PRODUCTS">Прикрепить к товарам
             </button>
         </div>
@@ -71,6 +71,7 @@
             ...mapGetters([
                 'IMAGEBOX',
                 'HAS_IMAGES_IN_IMAGEBOX',
+                'HAS_CHECKED_PRODUCTS',
                 'HOST',
 
             ]),
@@ -85,11 +86,12 @@
                 'GET_ALL_IMAGES_FROM_API',
                 'MOVE_IMAGE_IN_IMAGEBOX',
                 'CLEAR_IMAGEBOX',
-                'SET_IMAGEVIEWER'
+                'SET_IMAGEVIEWER',
+
             ]),
             handleFileUpload() {
                 this.inputFiles = this.$refs.inputFiles.files;
-                console.log('this.inputFiles.length', this.inputFiles.length);
+                //console.log('this.inputFiles.length', this.inputFiles.length);
                 if (this.inputFiles.length) {
                     let formData = new FormData();
                     let isFormDataHasFiles = false;
@@ -122,13 +124,16 @@
             createImageViewer(index) {
                 // let aaa = this.IMAGEBOX; копирует по ссылке (IMAGEBOX <=> IMAGEVIEWER)
                 // let aaa = Object.assign({}, {images: this.IMAGEBOX}, {'index': index}); копирует по ссылке
-                // let aaa = { ...this.IMAGEBOX}; клонирует, но не срабатывает ревктивность
-                // let aaa = Object.assign({}, this.IMAGEBOX); клонирует, но не срабатывает ревктивность
+                // let aaa = { ...this.IMAGEBOX}; клонирует, но не срабатывает реактивность
+                // let aaa = Object.assign({}, this.IMAGEBOX); клонирует, но не срабатывает реактивность
                 let aaa = JSON.parse(JSON.stringify(this.IMAGEBOX)); // работает
 
                 this.SET_IMAGEVIEWER({images: aaa, index})
             }
         },
+        mounted() {
+            //console.log('HAS_CHECKED_PRODUCTS: ', this.HAS_CHECKED_PRODUCTS)
+        }
     }
 </script>
 

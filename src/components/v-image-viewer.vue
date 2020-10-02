@@ -125,7 +125,6 @@ import {mapActions, mapGetters} from 'vuex'
             align-items: center;
             background: rgba(0, 0, 0, 0.6);
             height: 100%;
-            // border: 1px solid #ffffff;
 
             .image-block {
                 overflow: auto;

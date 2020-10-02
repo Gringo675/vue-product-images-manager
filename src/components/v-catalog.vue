@@ -38,7 +38,7 @@
 
 <style lang="scss">
     .v-catalog {
-        padding: 10px;
+        margin: 10px 30px;
     }
 
 

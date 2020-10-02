@@ -109,7 +109,11 @@ let store = new Vuex.Store({
                         // console.log('checkedImg ', checkedImg);
                         let image = item.images.filter((img) => img.file === checkedImg)[0];
                         let isImageExist = state.imagebox.some((img) => img.file === image.file);
-                        (!isImageExist ? state.imagebox.push(image) : 0);
+                        // (!isImageExist ? state.imagebox.push(image) : 0);
+                        if (!isImageExist) {
+                            image.id = ''; // все img в imagebox должны быть "обезличенными"
+                            state.imagebox.push(image);
+                        }
                         // console.log('image ', image);
                     });
                 }
@@ -169,7 +173,7 @@ let store = new Vuex.Store({
         },
         SET_FROM_SERVER_IMAGES_TO_IMAGEBOX_IN_STATE: (state, images) => {
             images.forEach((image) => {
-                console.log(image);
+                //console.log(image);
                 (!state.imagebox.some(value => value.file === image) ?
                 state.imagebox.push({'file': image, 'id':'', 'name':''}) : 0 );
 
@@ -199,6 +203,11 @@ let store = new Vuex.Store({
         },
         UNCHECK_PRODUCT_IN_STATE: (state, index) => {
             state.products[index].checked = false
+        },
+        RESET_CHANGED_PRODUCTS_IN_STATE: (state) => {
+            state.products.forEach((product) => {
+                product.changed = false;
+             })
         }
     },
     actions: {
@@ -299,19 +308,15 @@ let store = new Vuex.Store({
                     })
             })
         },
-        SAVE_CHANGED_PRODUCTS_ON_SERVER({state, dispatch}) {
+        SAVE_CHANGED_PRODUCTS_ON_SERVER({state, dispatch, commit}) {
             let changedProducts = state.products.filter(value => value.changed === true);
             dispatch('HTTP', {
                 method: "post",
                 url: state.HOST + '/img-api/api-save-changed-products.php',
                 data: changedProducts
             })
-                .then((response) => {
-                    console.log(response.data);
-                    // commit('SET_PRODUCTS_TO_STATE', response.data);
-                })
-                .catch((error) => {
-                    console.log(error);
+                .then(() => {
+                    commit('RESET_CHANGED_PRODUCTS_IN_STATE');
                 });
         },
         SET_SELECTED_IMAGES_TO_PRODUCTS({commit}, product) {

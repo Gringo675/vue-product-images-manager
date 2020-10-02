@@ -189,14 +189,15 @@
         background: #edfff8;
 
         .header {
-            position: sticky;
+            position: fixed;
             top: 0;
             display: flex;
             flex-direction: row;
             justify-content: center;
             width: 100vw;
             background: #f7bd94;
-            box-shadow: 0px 6px 6px 4px #f7bd94;
+            box-shadow: 0 6px 6px 4px #f7bd94;
+            z-index: 1;
 
             > div {
                 border: 1px solid #ea8b62;
@@ -423,8 +424,8 @@
         }
 
         .body {
-            margin-top: 50px;
-            //width: 100%;
+            margin-top: 130px;
+            width: 100%;
         }
     }
 </style>
