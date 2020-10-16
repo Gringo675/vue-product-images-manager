@@ -1,6 +1,6 @@
 <template>
     <div class="v-login">
-        <div class="form-wrapper">
+        <div class="form-wrapper" ref="login">
             <div class="header">ПОДКЛЮЧЕНИЕ К СЕРВЕРУ</div>
             <div class="login-form">
                 <form class="login" @submit.prevent="login">
@@ -38,10 +38,13 @@
                     password: this.password
                 })
                     .then(() => {
-                        this.message = 'Вы успешно зарегистрированы!';
+
                     })
-                    .catch((error) => {
-                        this.message = error.response.data;
+                    .catch(() => {
+                        this.$refs['login'].classList.add('error');
+                        setTimeout(()=>{
+                            this.$refs['login'].classList.remove('error');
+                        }, 440)
                     });
             }
         },
@@ -56,10 +59,6 @@
 <style lang="scss">
     .v-login {
         width: 100%;
-        /*display: flex;*/
-        /*flex-direction: column;*/
-        /*justify-content: center;*/
-        /*align-items: center;*/
 
         .form-wrapper {
             width: 400px;
@@ -100,6 +99,29 @@
                         background: #e0dbdb;
                         box-shadow: 0 0 4px #948484;
                     }
+                }
+            }
+
+            &.error {
+                background: #ed7a7a;
+                animation: tremble .4s;
+            }
+
+            @keyframes tremble {
+                0% {
+                    transform: translateX(0);
+                }
+                17% {
+                    transform: translateX(50px);
+                }
+                50% {
+                    transform: translateX(-50px);
+                }
+                83% {
+                    transform: translateX(50px);
+                }
+                100% {
+                    transform: translateX(0);
                 }
             }
         }

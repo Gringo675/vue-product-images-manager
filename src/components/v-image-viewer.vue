@@ -1,5 +1,5 @@
 <template>
-    <div class="v-image-viewer">
+    <div class="v-image-viewer" ref="viewer">
         <div class="wrapper" ref="viewer-wrapper">
             <div class="image-block">
                 <img
@@ -7,8 +7,26 @@
                                 + IMAGEVIEWER.images[IMAGEVIEWER.index].file'
                 >
             </div>
+            <div class="file-info">
+                <div>
+                    <span class="no-select title">name:</span>
+                    <span>{{IMAGEVIEWER.images[IMAGEVIEWER.index].file}}</span>
+                </div>
+                <div class="no-select">
+                    <span class="title">width:</span> <span>{{IMAGEVIEWER.images[IMAGEVIEWER.index].width}} px</span>
+                </div>
+                <div class="no-select">
+                    <span class="title">height:</span> <span>{{IMAGEVIEWER.images[IMAGEVIEWER.index].height}} px</span>
+                </div>
+                <div class="no-select">
+                    <span class="title">size:</span> <span>{{IMAGEVIEWER.images[IMAGEVIEWER.index].size}} kB</span>
+                </div>
+                <div class="no-select">
+                    <span class="title">date:</span> <span>{{IMAGEVIEWER.images[IMAGEVIEWER.index].date}}</span>
+                </div>
+            </div>
             <div class="control-block"
-                v-if="IMAGEVIEWER.images.length > 1">
+                 v-if="IMAGEVIEWER.images.length > 1">
                 <div class="btn btn-up"
                      @click="rollImages('up')"
                 ><i class="arrow up"></i></div>
@@ -26,7 +44,7 @@
                 <div class="btn btn-down"
                      @click="rollImages('down')"
                 >
-                    <i class="arrow down"></i> </div>
+                    <i class="arrow down"></i></div>
             </div>
             <div class="btn-close" @click="CLEAR_IMAGEVIEWER"></div>
         </div>
@@ -35,14 +53,12 @@
 
 <script>
 
-import {mapActions, mapGetters} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
 
     export default {
         name: "v-image-viewer",
         components: {},
-        props: {
-
-        },
+        props: {},
         data() {
             return {}
         },
@@ -65,8 +81,7 @@ import {mapActions, mapGetters} from 'vuex'
                         index = this.IMAGEVIEWER.images.length - 1
                     }
                     this.CHANGE_IMAGEVIEWER_INDEX(index);
-                }
-                else if (direction === 'down') {
+                } else if (direction === 'down') {
                     let index = this.IMAGEVIEWER.index + 1;
                     if (index > this.IMAGEVIEWER.images.length - 1) {
                         index = 0
@@ -74,31 +89,37 @@ import {mapActions, mapGetters} from 'vuex'
                     this.CHANGE_IMAGEVIEWER_INDEX(index);
                 }
             },
-            onKeyUp(e) {
-                if (e.key ==='Escape') {
+            onKeyDown(e) {
+                e.preventDefault();
+                if (e.key === 'Escape') {
+                    this.CLEAR_IMAGEVIEWER();
+                } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                    this.rollImages('down');
+                } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                    this.rollImages('up');
+                }
+            },
+            onClick(e) {
+                if (e.target === this.$refs['viewer'] || e.target === this.$refs['viewer-wrapper']) {
                     this.CLEAR_IMAGEVIEWER();
                 }
+            },
+            onWheel(e) {
+                e.preventDefault();
+                (e.deltaY > 0 ? this.rollImages('down') : this.rollImages('up'));
             }
 
         },
         watch: {},
         mounted() {
-            // let vm=this;
-            // document.addEventListener('click', function(item) {
-            //     if(item.target === vm.$refs['viewer-wrapper']) {
-            //         console.log(111);
-            //         vm.CLEAR_IMAGEVIEWER();
-            //     }
-            // })
-            document.addEventListener('click', (e) => {
-                if(e.target === this.$refs['viewer-wrapper']) {
-                    this.CLEAR_IMAGEVIEWER();
-                }
-            });
-            document.addEventListener('keyup', this.onKeyUp)
+            document.addEventListener('click', this.onClick);
+            document.addEventListener('keydown', this.onKeyDown);
+            document.addEventListener('wheel', this.onWheel, { passive: false })
         },
         beforeDestroy() {
-            document.removeEventListener('keyup', this.onKeyUp)
+            document.removeEventListener('click', this.onClick);
+            document.removeEventListener('keydown', this.onKeyDown);
+            document.removeEventListener('wheel', this.onWheel)
         }
     }
 </script>
@@ -111,7 +132,7 @@ import {mapActions, mapGetters} from 'vuex'
         right: 0;
         bottom: 0;
         left: 0;
-        z-index: 1040;
+        z-index: 1060;
         background: rgba(0, 0, 0, 0.6);
 
 
@@ -128,11 +149,37 @@ import {mapActions, mapGetters} from 'vuex'
 
             .image-block {
                 overflow: auto;
-            //    margin-top: 20px;
+                //    margin-top: 20px;
 
                 img {
                     max-width: 1000px;
                 }
+            }
+
+            .file-info {
+                position: absolute;
+                left: 20px;
+                bottom: 20px;
+                color: #fff;
+                padding: 20px;
+                opacity: 0.8;
+                border: 1px solid #3e424b;
+                border-radius: 20px;
+                background: #2c2c2c;
+
+                div {
+                    line-height: 1.4em;
+                }
+
+                .no-select {
+                    user-select: none;
+                }
+
+                span.title {
+                    display: inline-block;
+                    width: 55px;
+                }
+
             }
 
             .control-block {
@@ -143,6 +190,12 @@ import {mapActions, mapGetters} from 'vuex'
                 opacity: .8;
                 border: 1px solid #3e424b;
                 border-radius: 20px;
+                max-height: 670px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
 
                 > div:hover {
                     box-shadow: 0 0 4px 0 #ddd;
@@ -156,19 +209,28 @@ import {mapActions, mapGetters} from 'vuex'
                     padding: 5px;
                     cursor: pointer;
 
+                    &.btn-up {
+                        margin-bottom: 7px;
+                    }
+                    &.btn-down {
+                        margin-top: 7px;
+                    }
+
                     i.arrow.down {
                         @include arrow(2px, 6px, #ccc, down);
                     }
+
                     i.arrow.up {
-                       @include arrow(2px, 6px, #ccc, up);
+                        @include arrow(2px, 6px, #ccc, up);
                     }
                 }
+
                 & .unactive {
                     color: #5d5d5d;
                     border-color: #5d5d5d;
                     cursor: default;
 
-                    i.arrow.down,  i.arrow.up {
+                    i.arrow.down, i.arrow.up {
                         border-color: #5d5d5d;
                     }
 
@@ -176,9 +238,11 @@ import {mapActions, mapGetters} from 'vuex'
 
 
                 .thumb-image {
-                    margin: 10px auto;
                     padding: 5px;
                     cursor: pointer;
+                    height: 75px;
+                    min-height: 0;
+                    flex-shrink: 1;
 
                     &.active {
                         border: 2px solid #ccc;
@@ -188,7 +252,7 @@ import {mapActions, mapGetters} from 'vuex'
                     img {
                         display: block;
                         margin: auto;
-                        width: 50px;
+                        height: 100%;
                     }
                 }
             }

@@ -1,48 +1,53 @@
 <template>
-    <div class="v-server-images"
-         v-if="SERVER_IMAGES.length">
-        <div class="v-server-images-header">
-            <span class="title">Изображения на сервере</span>
-        </div>
-        <div class="v-server-images-content">
-            <div class="item"
-                 v-for="image in SERVER_IMAGES"
-                 :key="image"
-                 v-show="filterImage(image)"
-            >
-                <label :for='image'>
-                    <img
-                            :src='HOST + "/components/com_jshopping/files/img_products/thumb_" + image'
-                    >
-                    <div class="image-name">{{image}}</div>
-                </label>
-
-                <input type="checkbox"
-                       :id='image'
-                       :value='image'
-                       v-model="checkedImages">
+    <transition name="imageviewer">
+        <div class="v-server-images"
+             v-if="SERVER_IMAGES.length">
+            <div class="v-server-images-header">
+                <span class="title">Изображения на сервере</span>
             </div>
+            <div class="v-server-images-content">
+                <div class="item"
+                     v-for="image in SERVER_IMAGES"
+                     :key="image.file"
+                     v-show="filterImage(image.file)"
+                >
+                    <label :for='image.file'>
+                        <img
+                                :src='HOST + "/components/com_jshopping/files/img_products/thumb_" + image.file'
+                        >
+                        <div class="image-name">{{image.file}}</div>
+                    </label>
 
-        </div>
-        <div class="v-server-images-footer">
-            <div class="filter">
-                <input v-model="filterMask"
-                       placeholder="Введите маску для фильтрации">
-            </div>
-            <div class="total">Выбрано изображений: {{checkedImages.length}}</div>
-            <div class="buttons">
-                <button class="add-to-imagebox"
-                        @click="addToImagebox(checkedImages)"
-                >Добавить
-                </button>
-                <button class="close"
-                        @click="close"
-                >Закрыть
-                </button>
-            </div>
+                    <input type="checkbox"
+                           :id='image.file'
+                           :value='image'
+                           v-model="checkedImages">
+                    <div class="zoom"
+                         @click="createImageViewer(image.file)">+
+                    </div>
+                </div>
 
+            </div>
+            <div class="v-server-images-footer">
+                <div class="filter">
+                    <input v-model="filterMask"
+                           placeholder="Введите маску для фильтрации">
+                </div>
+                <div class="total">Выбрано изображений: {{checkedImages.length}}</div>
+                <div class="buttons">
+                    <button class="add-to-imagebox"
+                            @click="addToImagebox(checkedImages)"
+                    >Добавить
+                    </button>
+                    <button class="close"
+                            @click="close"
+                    >Закрыть
+                    </button>
+                </div>
+
+            </div>
         </div>
-    </div>
+    </transition>
 </template>
 
 <script>
@@ -60,7 +65,8 @@
         methods: {
             ...mapActions([
                 'CLEAR_SERVER_IMAGES',
-                'SET_FROM_SERVER_IMAGES_TO_IMAGEBOX'
+                'SET_FROM_SERVER_IMAGES_TO_IMAGEBOX',
+                'SET_IMAGEVIEWER'
 
             ]),
             filterImage(image) {
@@ -76,6 +82,11 @@
                 this.SET_FROM_SERVER_IMAGES_TO_IMAGEBOX(checkedImages);
                 this.close();
             },
+            createImageViewer(file) {
+                 let image = this.SERVER_IMAGES.filter(item => item.file === file );
+                let index = 0;
+                this.SET_IMAGEVIEWER({images: image, index})
+            }
         },
         computed: {
             ...mapGetters([
@@ -155,6 +166,29 @@
                     top: 10px;
                     opacity: 1;
                 }
+
+                .zoom {
+                    position: absolute;
+                    padding: 2px;
+                    margin: 5px;
+                    border: 2px solid #c1e4f3;
+                    border-radius: 50%;
+                    left: 2px;
+                    bottom: 5px;
+                    font-size: 35px;
+                    line-height: 18px;
+                    width: 20px;
+                    height: 20px;
+                    text-align: center;
+                    color: #e0f1f6;
+                    cursor: zoom-in;
+                    transition: transform .2s linear;
+
+                    &:hover {
+                        transform: scale(1.2);
+                        box-shadow: 0 0 4px #c0ddf4;
+                    }
+                }
             }
         }
 
@@ -168,7 +202,7 @@
             align-items: center;
 
             .filter {
-                   margin-left: 10px;
+                margin-left: 10px;
 
                 input {
                     width: 300px;

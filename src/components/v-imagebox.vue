@@ -11,6 +11,7 @@
                     @click="ADD_IMAGEBOX_TO_CHECKED_PRODUCTS">Прикрепить к товарам
             </button>
         </div>
+        <transition name="holder_toggle">
         <div class="holder"
              v-if="HAS_IMAGES_IN_IMAGEBOX">
             <div class="toggle"
@@ -22,9 +23,10 @@
                 <i class="arrow"
                    :class="showImageboxItems ? 'up' : 'down'"></i>
             </div>
-
-            <div class="image-items"
-                 v-show="showImageboxItems">
+            <transition name="holder_fade_collapse">
+                <div class="wrapper"
+                     v-show="showImageboxItems">
+            <div class="image-items">
                 <div class="image-item"
                      v-for="(image, index) in IMAGEBOX"
                      :key="image.file"
@@ -50,7 +52,10 @@
 
                 </div>
             </div>
+                </div>
+            </transition>
         </div>
+        </transition>
 
     </div>
 </template>
@@ -138,6 +143,7 @@
 </script>
 
 <style lang="scss">
+
     .v-imagebox {
         position: relative;
 

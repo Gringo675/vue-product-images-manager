@@ -174,8 +174,8 @@ let store = new Vuex.Store({
         SET_FROM_SERVER_IMAGES_TO_IMAGEBOX_IN_STATE: (state, images) => {
             images.forEach((image) => {
                 //console.log(image);
-                (!state.imagebox.some(value => value.file === image) ?
-                state.imagebox.push({'file': image, 'id':'', 'name':''}) : 0 );
+                (!state.imagebox.some(value => value.file === image.file) ?
+                state.imagebox.push(image) : 0 );
 
             });
         },

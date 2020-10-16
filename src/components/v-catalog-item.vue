@@ -1,16 +1,26 @@
 <template>
     <div class="v-catalog-item">
-        <div class="product-name">
-            <label
-                    :for='product_data.ean'>
-                {{product_data.name}}
-            </label>
-            <input type="checkbox"
-                   :id='product_data.ean'
-                   :value='product_data.ean'
-                   v-model="product_data.checked">
-            <div class="product-ean">ID: {{product_data.ean}}</div>
-
+        <div class="product-data">
+            <div class="product-name">
+                <label
+                        :for='product_data.ean'>
+                    {{product_data.name}}
+                </label>
+                <input type="checkbox"
+                       :id='product_data.ean'
+                       :value='product_data.ean'
+                       v-model="product_data.checked">
+            </div>
+            <div class="product-ean">
+                <!--                <a href="#" title="Открыть страницу"-->
+                <!--                   @click.prevent="openProductPage(product_data.ean)"-->
+                <!--                >ID: {{product_data.ean}}</a>-->
+                <a title="Открыть страницу" onclick="window.open(this.getAttribute('href'),'');return false;"
+                   :href="HOST + '/index.php?option=com_jshopping&controller=product&task=view&category_id=' + Math.floor(product_data.ean / 10000) + '&product_id=' + product_data.ean + '&Itemid=510'"
+                >ID: {{product_data.ean}}</a>
+                <img class="copy" title="Скопировать в буфер" alt="" src="@/assets/copy-to-clipboard.jpg"
+                     @click="copyToClipboard($event.target, product_data.ean)">
+            </div>
         </div>
         <div class="product-image"
              v-for="(image, index) in product_data.images"
@@ -95,6 +105,20 @@
                 let aaa = JSON.parse(JSON.stringify(this.product_data.images)); // работает
 
                 this.SET_IMAGEVIEWER({images: aaa, index})
+            },
+            openProductPage(ean) {
+                window.open(this.HOST + '/index.php?option=com_jshopping&controller=product&task=view&category_id=' + Math.floor(ean / 10000) + '&product_id=' + ean);
+
+            },
+            copyToClipboard(elm, data) {
+                navigator.clipboard.writeText(data)
+                    .then(() => {
+                        elm.previousSibling.classList.add("click");
+                        setTimeout(() => {
+                                elm.previousSibling.classList.remove("click");
+                            },
+                            600)
+                    })
             }
         },
         watch: {
@@ -125,7 +149,7 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
-        align-items: flex-start;
+        align-items: stretch;
         border: 1px solid #ccc;
         border-radius: 5px;
         padding: 10px;
@@ -134,30 +158,76 @@
         box-shadow: 1px 2px #ccc;
         overflow: auto;
 
-        .product-name {
-            width: 400px;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            padding: 5px;
-            background: #edfff8;
-            border-radius: 5px;
-            flex-shrink: 0;
+        .product-data {
             position: sticky;
             left: 0;
+            background: #fff;
+            z-index: 10;
 
-            label {
-                display: block;
-                padding-right: 10px;
-                flex-grow: 1;
+            .product-name {
+                width: 400px;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 20px;
+                padding: 5px;
+                background: #d0ffed;
+                border-radius: 5px;
+                flex-shrink: 0;
+
+                label {
+                    display: block;
+                    padding-right: 10px;
+                    flex-grow: 1;
+                }
+
+                input {
+                    display: block;
+                    width: 24px;
+                    height: 24px;
+                }
             }
 
-            input {
-                display: block;
-                width: 24px;
-                height: 24px;
+            .product-ean {
+                margin-top: 20px;
+
+                a {
+                    position: relative;
+                    color: blue;
+
+                    &:before {
+                        content: "В БУФЕРЕ!";
+                        position: absolute;
+                        left: 20px;
+                        bottom: -6px;
+                        width: 76px;
+                        color: #236aec;
+                        visibility: hidden;
+                        background: #e8e8e8;
+                        padding: 7px;
+                        border-radius: 10px;
+                        opacity: 1;
+                        box-shadow: 0 0 5px 0 #e8e8e8;
+
+                    }
+
+                    &.click:before {
+                        visibility: visible;
+                        opacity: .1;
+                        bottom: 70px;
+                        transition: all linear .5s;
+                    }
+                }
+
+                img.copy {
+                    width: 15px;
+                    margin-left: 15px;
+                    cursor: pointer;
+                    position: relative;
+                    top: 2px;
+                    transition: top linear 1s;
+                }
             }
         }
 
@@ -173,14 +243,6 @@
                 width: 100px;
                 margin: 5px;
                 cursor: zoom-in;
-
-
-                //&:hover {
-                 //   transform: scale(1.5);
-                 //   border: 1px solid red;
-                 //   position: absolute;
-                //}
-
             }
 
             .image-control {

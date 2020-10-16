@@ -12,6 +12,7 @@
                         </button>
                     </div>
                 </div>
+                <transition name="holder_toggle">
                 <div class="holder"
                      v-if="HAS_CHECKED_PRODUCTS">
                     <div class="toggle"
@@ -23,18 +24,22 @@
                         <i class="arrow"
                            :class="showHolder1Items ? 'up' : 'down'"></i>
                     </div>
-
-                    <div class="product-items"
-                         v-show="showHolder1Items">
-                        <div class="product-item"
-                             v-for="(product) in CHECKED_PRODUCTS"
-                             :key="product.ean"
-                        >
-                            <div class="product-name"> {{product.name}}</div>
-                            <div class="btn-del" @click="UNCHECK_PRODUCT(product.index)"></div>
+                    <transition name="holder_fade_collapse">
+                        <div class="wrapper"
+                             v-show="showHolder1Items">
+                            <div class="product-items">
+                                <div class="product-item"
+                                     v-for="(product) in CHECKED_PRODUCTS"
+                                     :key="product.ean"
+                                >
+                                    <div class="product-name"> {{product.name}}</div>
+                                    <div class="btn-del" @click="UNCHECK_PRODUCT(product.index)"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </transition>
                 </div>
+                </transition>
             </div>
             <div class="header-block-2">
                 <div class="buttons-block">
@@ -55,6 +60,7 @@
                         В буфер
                     </button>
                 </div>
+                <transition name="holder_toggle">
                 <div class="holder"
                      v-if="HAS_CHECKED_IMAGES">
                     <div class="toggle"
@@ -66,33 +72,32 @@
                         <i class="arrow"
                            :class="showHolder2Items ? 'up' : 'down'"></i>
                     </div>
+                    <transition name="holder_fade_collapse">
+                        <div class="wrapper"
+                             v-show="showHolder2Items">
+                            <div class="image-items">
+                                <div class="image-item"
+                                     v-for="(image, index) in CHECKED_IMAGES"
+                                     :key="image.file"
+                                >
+                                    <img
+                                            @click="createImageViewer(index)"
+                                            :src='HOST + "/components/com_jshopping/files/img_products/thumb_" + image.file'
+                                            :alt='image.name'
+                                    >
+                                    <div class="buttons">
+                                        <div class="btn-del" @click="UNCHECK_IMAGE(image.file)"></div>
+                                    </div>
 
-                    <div class="image-items"
-                         v-show="showHolder2Items">
-                        <div class="image-item"
-                             v-for="(image, index) in CHECKED_IMAGES"
-                             :key="image.file"
-                        >
-                            <img
-                                    @click="createImageViewer(index)"
-                                    :src='HOST + "/components/com_jshopping/files/img_products/thumb_" + image.file'
-                                    :alt='image.name'
-                            >
-                            <div class="buttons">
-                                <div class="btn-del" @click="UNCHECK_IMAGE(image.file)"></div>
+                                </div>
                             </div>
-
                         </div>
-                    </div>
+                    </transition>
                 </div>
+                </transition>
             </div>
             <div class="header-block-3">
                 <vImagebox/>
-                <div class="imagebox">
-
-
-                </div>
-
             </div>
         </div>
 
@@ -259,7 +264,7 @@
                         padding: 10px;
                         background: #f3f3f3;
                         overflow: auto;
-                        max-height: 400px;
+                        max-height: 500px;
                         border: 1px solid #ccc;
                         border-radius: 0 0 5px 5px;
 
@@ -348,7 +353,7 @@
 
                     i.arrow {
                         float: right;
-                        transition: .2s linear;
+                        transition: all .4s linear;
                     }
 
                     i.arrow.up {
@@ -365,7 +370,7 @@
                     padding: 10px;
                     background: #f3f3f3;
                     overflow: auto;
-                    max-height: 400px;
+                    max-height: 500px;
                     border: 1px solid #ccc;
                     border-radius: 0 0 5px 5px;
 
@@ -385,7 +390,7 @@
                             border: 1px solid #ccc;
                             border-radius: 5px;
                             background: white;
-                            cursor: pointer;
+                            cursor: zoom-in;
                         }
 
                         .buttons {

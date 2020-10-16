@@ -7,5 +7,6 @@ module.exports = {
                 additionalData: '@import "@/scss/main.scss";'
             }
         }
-    }
+    },
+    publicPath: '/administrator/product-images-manager/'
 };

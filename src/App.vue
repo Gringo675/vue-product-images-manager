@@ -1,9 +1,14 @@
 <template>
     <div id="app">
+        <transition appear name="start" mode="out-in">
         <vLogin v-if="!LOGGED"/>
         <vMainWrapper v-else/>
-        <vLoader v-show="SHOW_LOADER"/>
+        </transition>
+
+         <vLoader v-show="SHOW_LOADER"/>
+        <transition name="imageviewer">
         <vImageViewer v-if="SHOW_IMAGEVIEWER"/>
+        </transition>
     </div>
 </template>
 
@@ -108,6 +113,79 @@
 
     input:focus, select:focus {
         outline: none;
+    }
+
+    // transitions
+    .holder_fade_collapse-enter-active, .holder_fade_collapse-leave-active {
+        transition: all .5s ease-out;
+        overflow: hidden;
+    }
+
+    .holder_fade_collapse-enter, .holder_fade_collapse-leave-to {
+        max-height: 0;
+        opacity: 0;
+    }
+
+    .holder_fade_collapse-enter-to, .holder_fade_collapse-leave {
+        max-height: 522px;
+    }
+
+    .holder_toggle-enter-active, .holder_toggle-leave-active {
+          transition: height .6s ease-out;
+          overflow: hidden;
+      }
+
+    .holder_toggle-enter, .holder_toggle-leave-to {
+        height: 0;
+    }
+
+    .holder_toggle-enter-to, .holder_toggle-leave {
+        height: 39px;
+    }
+    .holder_toggle-enter-active .toggle, .holder_toggle-leave-active .toggle {
+        transition: all .6s ease-out;
+    }
+
+    .holder_toggle-enter .toggle, .holder_toggle-leave-to .toggle {
+        opacity: 0;
+        transform: translate(0,  -39px);
+    }
+
+    .holder_toggle-enter-to .toggle, .holder_toggle-leave .toggle {
+        opacity: 1;
+    }
+
+    .imageviewer-enter-active, .imageviewer-leave-active {
+        transition: opacity .5s linear;
+    }
+
+    .imageviewer-enter, .imageviewer-leave-to {
+        opacity: 0;
+    }
+
+    .imageviewer-enter-active .wrapper, .imageviewer-leave-active .wrapper {
+        transition: transform .5s linear;
+    }
+
+    .imageviewer-enter .wrapper, .imageviewer-leave-to .wrapper {
+        transform: scale(.3);
+    }
+
+    .start-enter-active.v-login, .start-leave-active.v-login {
+        transition: all .5s linear;
+    }
+
+    .start-enter.v-login, .start-leave-to.v-login {
+        transform: translateY(-200px);
+        opacity: 0;
+    }
+    .start-enter-active.v-main-wrapper {
+        transition: all .5s linear;
+    }
+
+    .start-enter.v-main-wrapper {
+        transform: scale(.7);
+        opacity: 0;
     }
 
 </style>

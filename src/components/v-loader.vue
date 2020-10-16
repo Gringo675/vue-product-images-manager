@@ -28,8 +28,7 @@
         bottom: 0;
         left: 0;
         z-index: 1040;
-        background-color: #000;
-        opacity: .8;
+        background-color: #ffffff26;
         display: flex;
         flex-direction: column;
         justify-content: center;
